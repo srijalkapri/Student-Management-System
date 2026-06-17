@@ -7,8 +7,8 @@ namespace CRUD.Interfaces
     public interface IStudentRepository
     {
         Task<int> CreateStudent(Student student);
-        Task<bool> UpdateStudent(Student student);
-        Task<bool> DeleteStudent(int id);
+        Task<int> UpdateStudent(Student student);
+        Task<int> DeleteStudent(int id);
 
         Task<List<Student>> GetAllStudents();
         Task<StudentDetailsDto?> GetStudentById(int id);

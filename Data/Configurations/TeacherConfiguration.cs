@@ -20,9 +20,8 @@ namespace CRUD.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(50);
 
-            builder.Property(t => t.Grade)
-                .IsRequired()
-                .HasMaxLength(20);
+           builder.Property(t => t.Grades)
+                .IsRequired();
 
         }
 

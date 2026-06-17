@@ -9,5 +9,7 @@ namespace CRUD.DTOs
 
         public string TeacherName { get; set; }= string.Empty;
         public List<string> StudentNames { get; set; } = new List<string>();
+
+        public List<string> Grades { get; set; } = new List<string>();
     }
 }
