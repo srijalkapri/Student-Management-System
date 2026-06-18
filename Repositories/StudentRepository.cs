@@ -44,9 +44,19 @@ namespace CRUD.Repositories
             return student.Id;
         }
 
-        public async Task<List<Student>> GetAllStudents()
+        public async Task<List<StudentDetailsDto>> GetAllStudents()
         {
-            return await _context.Students.ToListAsync();
+            return await _context.Students
+            .Select(s => new StudentDetailsDto
+
+            {
+                StudentId = s.Id,
+                StudentName = s.Name,
+                StudentGrade = s.Grade,
+                TeacherName = s.Teacher.Name ?? "No Teacher Assigned",
+                TeacherSubject = s.Teacher.Subject ?? "No Subject Assigned"
+
+            }).ToListAsync();
         }
 
         public async Task<StudentDetailsDto?> GetStudentById(int id)
@@ -58,11 +68,12 @@ namespace CRUD.Repositories
                     StudentId = s.Id,
                     StudentName = s.Name,
                     StudentGrade = s.Grade,
-                    TeacherName = s.Teacher.Name != null ? s.Teacher.Name : "No Teacher Assigned",
-                    TeacherSubject = s.Teacher.Subject != null ? s.Teacher.Subject : "No Subject Assigned"
+                    TeacherName = s.Teacher.Name ?? "No Teacher Assigned",
+                    TeacherSubject = s.Teacher.Subject ?? "No Subject Assigned"
                 })
                 .FirstOrDefaultAsync();
         }
+
 
     }
 }
