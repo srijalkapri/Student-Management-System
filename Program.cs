@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using CRUD.Data;
+using CRUD.Interfaces;
+using CRUD.Repositories;
+using CRUD.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseLazyLoadingProxies()
       .UseNpgsql(connectionString)
     );
+
+
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+
+
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ITeacherServices, TeacherService>();
+
+
+
 
 var app = builder.Build();
 

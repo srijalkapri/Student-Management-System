@@ -45,9 +45,18 @@ namespace CRUD.Repositories
         }
 
 
-        public async Task<List<Teacher>> GetAllTeachers()
+        public async Task<List<TeacherResponseDto>> GetAllTeachers()
         {
-            return await _context.Teachers.ToListAsync();
+            return await _context.Teachers
+              .Select(t => new TeacherResponseDto
+                 {
+
+                     Id = t.Id,
+                     Name = t.Name,
+                     Subject = t.Subject,
+                     Grades = t.Grades,
+                    TotalStudents = t.Students.Count
+                 }).ToListAsync();
         }
 
         public async Task<TeacherResponseDto?> GetTeacherById(int id)

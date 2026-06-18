@@ -10,7 +10,7 @@ namespace CRUD.Interfaces
         Task<int> UpdateStudent(Student student);
         Task<int> DeleteStudent(int id);
 
-        Task<List<Student>> GetAllStudents();
+        Task<List<StudentDetailsDto>> GetAllStudents();
         Task<StudentDetailsDto?> GetStudentById(int id);
 
     }

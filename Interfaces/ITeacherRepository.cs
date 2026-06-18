@@ -11,7 +11,7 @@ namespace CRUD.Interfaces
 
         Task<int> DeleteTeacher(int id);
 
-       Task<List <Teacher>> GetAllTeachers();
+       Task<List <TeacherResponseDto>> GetAllTeachers();
         Task<TeacherResponseDto?> GetTeacherById(int id);
 
         Task<TeacherDetailDto?> GetTeacherDetails(int id);
