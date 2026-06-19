@@ -56,7 +56,7 @@ namespace CRUD.Repositories
                 TeacherName = s.Teacher.Name ?? "No Teacher Assigned",
                 TeacherSubject = s.Teacher.Subject ?? "No Subject Assigned"
 
-            }).ToListAsync();
+            }).ToListAsync()
         }
 
         public async Task<StudentDetailsDto?> GetStudentById(int id)

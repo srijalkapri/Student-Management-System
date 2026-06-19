@@ -5,13 +5,14 @@ using CRUD.Repositories;
 
 
 
-namespace CRUD.Services
+
+namespace CRUD.Services 
 {
     public class StudentService : IStudentService
     {
-        private readonly StudentRepository _studentRepository;
-
-        public StudentService(StudentRepository studentRepository)
+        private readonly IStudentRepository _studentRepository;
+            
+        public StudentService(IStudentRepository studentRepository)
         {
             _studentRepository = studentRepository;
 
@@ -32,14 +33,25 @@ namespace CRUD.Services
 
         public async Task<int> UpdateStudent(int id, StudentCreate studentDto)
         {
-            var student = new Student
-            {
-                Id = id,
-                Name = studentDto.Name,
-                Grade = studentDto.Grade,
-                TeacherId = studentDto.TeacherId
-            };
-            return await _studentRepository.UpdateStudent(student);
+            var students = await _studentRepository.GetAllStudents();
+
+            var existingStudent = students.FirstOrDefault(s => s.Id == id);
+
+
+
+            if (existingStudent == null) {
+
+                return 0;
+            }
+
+
+            existingStudent.Name = studentDto.Name;
+            existingStudent.Grade = studentDto.Grade;
+            existingStudent.TeacherId = studentDto.TeacherId;
+
+             await _studentRepository.UpdateStudent(existingStudent);
+            return existingStudent.Id;
+
         }
 
         public async Task<int> DeleteStudent (int id)
@@ -49,13 +61,38 @@ namespace CRUD.Services
 
         public async Task<List<StudentDetailsDto>> GetAllStudents() {
 
-           return await _studentRepository.GetAllStudents();
+
+            var students = await _studentRepository.GetAllStudents();
+
+            return students.Select(s => new StudentDetailsDto
+            {
+                StudentId = s.Id,
+                StudentName = s.Name,
+                StudentGrade = s.Grade,
+                TeacherName = s.Teacher != null ? s.Teacher.Name : "No Teacher Assigned",
+                TeacherSubject = s.Teacher != null ? s.Teacher.Subject : "N/A"
+            }).ToList();
         }
 
 
         public async Task<StudentDetailsDto?> GetStudentById(int id)
         {
-            return await _studentRepository.GetStudentById(id);
+
+            var student = await _studentRepository.GetRawStudentById(id);
+
+            if (student == null)
+            {
+                return null;
+            }
+
+            return new StudentDetailsDto
+            {
+                StudentId = student.Id,
+                StudentName = student.Name,
+                StudentGrade = student.Grade,
+                TeacherName = student.Teacher != null ? student.Teacher.Name : "No Teacher Assigned",
+                TeacherSubject = student.Teacher != null ? student.Teacher.Subject : "N/A"
+            };
         }
 
     }

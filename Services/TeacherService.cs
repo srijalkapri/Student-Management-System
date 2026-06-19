@@ -9,39 +9,42 @@ namespace CRUD.Services
 
     public class TeacherService : ITeacherServices
     {
-        private readonly TeacherRepository _teacherRepository;
-      
-        public TeacherService(TeacherRepository teacherRepository)
+        private readonly ITeacherRepository _teacherRepository;
+
+        public TeacherService(ITeacherRepository teacherRepository)
         {
             _teacherRepository = teacherRepository;
         }
 
-     public async Task<int>CreateTeacher(TeacherCreateDto teacherdto)
+        public async Task<int> CreateTeacher(TeacherCreateDto teacherdto)
         {
-            var teacher = new Teacher { 
+            var teacher = new Teacher
+            {
 
-            Name= teacherdto.Name,
-            Subject= teacherdto.Subject,
-            Grades= teacherdto.Grades
-               
+                Name = teacherdto.Name,
+                Subject = teacherdto.Subject,
+                Grades = teacherdto.Grades
+
             };
             return await _teacherRepository.CreateTeacher(teacher);
         }
-   
-        public async Task<int>UpdateTeacher(int id, TeacherCreateDto teacherdto) {
 
-            var teacher = new Teacher { 
-            
-            Id= id,
-            Name = teacherdto.Name,
-            Subject= teacherdto.Subject,
-            Grades = teacherdto.Grades
-            
-        };
+        public async Task<int> UpdateTeacher(int id, TeacherCreateDto teacherdto)
+        {
+
+            var teacher = new Teacher
+            {
+
+                Id = id,
+                Name = teacherdto.Name,
+                Subject = teacherdto.Subject,
+                Grades = teacherdto.Grades
+
+            };
             return await _teacherRepository.UpdateTeacher(teacher);
         }
 
-        public async Task<int>DeleteTeacher(int id)
+        public async Task<int> DeleteTeacher(int id)
         {
             return await _teacherRepository.DeleteTeacher(id);
         }

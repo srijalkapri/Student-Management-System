@@ -2,6 +2,7 @@
 using CRUD.Models;
 
 
+
 namespace CRUD.Interfaces
 {
     public interface IStudentRepository
@@ -10,8 +11,8 @@ namespace CRUD.Interfaces
         Task<int> UpdateStudent(Student student);
         Task<int> DeleteStudent(int id);
 
-        Task<List<StudentDetailsDto>> GetAllStudents();
-        Task<StudentDetailsDto?> GetStudentById(int id);
+        Task<List<Student>> GetAllStudents();
+        Task<StudentDetailsDto> GetRawStudentById(int id);
 
     }
 }
