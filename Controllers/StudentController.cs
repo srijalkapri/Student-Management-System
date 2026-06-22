@@ -1,4 +1,4 @@
-﻿using CRUD.DTOs;
+using CRUD.DTOs;
 using CRUD.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +45,7 @@ namespace CRUD.Controllers
 
             if (student == null)
             {
-                return NotFound("Student with ID {id} not found. please enter the valid Id");
+                return NotFound($"Student with ID {id} not found. please enter the valid Id");
             }
 
             return Ok(student);
@@ -66,7 +66,7 @@ namespace CRUD.Controllers
 
             if (resultId == 0)
             {
-                return NotFound("Student with ID {id} not found. please enter the valid Id");
+                return NotFound($"Student with ID {id} not found. please enter the valid Id");
 
             }
 
@@ -83,7 +83,7 @@ namespace CRUD.Controllers
 
             if (resultId == 0)
             {
-                return NotFound("Student with ID {id} not found. please enter the valid Id");
+                return NotFound($"Student with ID {id} not found. please enter the valid Id");
             }
 
             return Ok(new { Message = "Student deleted sucessfully", studentId = resultId });

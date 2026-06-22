@@ -1,4 +1,4 @@
-﻿using CRUD.DTOs;
+using CRUD.DTOs;
 using CRUD.Models;
 
 
@@ -11,8 +11,8 @@ namespace CRUD.Interfaces
         Task<int> UpdateStudent(Student student);
         Task<int> DeleteStudent(int id);
 
-        Task<List<Student>> GetAllStudents();
-        Task<StudentDetailsDto> GetRawStudentById(int id);
+        Task<List<StudentDetailsDto>> GetAllStudents();
+        Task<StudentDetailsDto?> GetStudentById(int id);
 
     }
 }

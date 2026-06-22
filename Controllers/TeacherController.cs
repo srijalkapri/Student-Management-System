@@ -1,4 +1,4 @@
-﻿using CRUD.DTOs;
+using CRUD.DTOs;
 using CRUD.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,7 +47,7 @@ namespace CRUD.Controllers
 
             if (teacherId == null)
             {
-                return NotFound("Teacher with ID {id} not found. please enter the valid Id");
+                return NotFound($"Teacher with ID {id} not found. please enter the valid Id");
             }
 
             return Ok(teacherId);

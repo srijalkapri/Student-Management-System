@@ -1,4 +1,4 @@
-﻿using CRUD.Interfaces;
+using CRUD.Interfaces;
 using CRUD.Models;
 using CRUD.DTOs;
 using CRUD.Repositories;
@@ -33,25 +33,15 @@ namespace CRUD.Services
 
         public async Task<int> UpdateStudent(int id, StudentCreate studentDto)
         {
-            var students = await _studentRepository.GetAllStudents();
+            var student = new Student
+            {
+                Id = id,
+                Name = studentDto.Name,
+                Grade = studentDto.Grade,
+                TeacherId = studentDto.TeacherId
+            };
 
-            var existingStudent = students.FirstOrDefault(s => s.Id == id);
-
-
-
-            if (existingStudent == null) {
-
-                return 0;
-            }
-
-
-            existingStudent.Name = studentDto.Name;
-            existingStudent.Grade = studentDto.Grade;
-            existingStudent.TeacherId = studentDto.TeacherId;
-
-             await _studentRepository.UpdateStudent(existingStudent);
-            return existingStudent.Id;
-
+            return await _studentRepository.UpdateStudent(student);
         }
 
         public async Task<int> DeleteStudent (int id)
@@ -59,40 +49,14 @@ namespace CRUD.Services
             return await _studentRepository.DeleteStudent(id);
         }
 
-        public async Task<List<StudentDetailsDto>> GetAllStudents() {
-
-
-            var students = await _studentRepository.GetAllStudents();
-
-            return students.Select(s => new StudentDetailsDto
-            {
-                StudentId = s.Id,
-                StudentName = s.Name,
-                StudentGrade = s.Grade,
-                TeacherName = s.Teacher != null ? s.Teacher.Name : "No Teacher Assigned",
-                TeacherSubject = s.Teacher != null ? s.Teacher.Subject : "N/A"
-            }).ToList();
+        public async Task<List<StudentDetailsDto>> GetAllStudents()
+        {
+            return await _studentRepository.GetAllStudents();
         }
-
 
         public async Task<StudentDetailsDto?> GetStudentById(int id)
         {
-
-            var student = await _studentRepository.GetRawStudentById(id);
-
-            if (student == null)
-            {
-                return null;
-            }
-
-            return new StudentDetailsDto
-            {
-                StudentId = student.Id,
-                StudentName = student.Name,
-                StudentGrade = student.Grade,
-                TeacherName = student.Teacher != null ? student.Teacher.Name : "No Teacher Assigned",
-                TeacherSubject = student.Teacher != null ? student.Teacher.Subject : "N/A"
-            };
+            return await _studentRepository.GetStudentById(id);
         }
 
     }

@@ -1,4 +1,4 @@
-﻿using CRUD.Data;
+using CRUD.Data;
 using CRUD.DTOs;
 using CRUD.Interfaces;
 using CRUD.Models;
@@ -26,6 +26,11 @@ namespace CRUD.Repositories
 
         public async Task<int>UpdateStudent(Student student)
         {
+            var exists = await _context.Students.AnyAsync(s => s.Id == student.Id);
+            if (!exists)
+            {
+                return 0;
+            }
 
             _context.Students.Update(student);
             await _context.SaveChangesAsync();
@@ -53,10 +58,9 @@ namespace CRUD.Repositories
                 StudentId = s.Id,
                 StudentName = s.Name,
                 StudentGrade = s.Grade,
-                TeacherName = s.Teacher.Name ?? "No Teacher Assigned",
-                TeacherSubject = s.Teacher.Subject ?? "No Subject Assigned"
-
-            }).ToListAsync()
+                TeacherName = s.Teacher != null ? s.Teacher.Name : "No Teacher Assigned",
+                TeacherSubject = s.Teacher != null ? s.Teacher.Subject : "No Subject Assigned"
+            }).ToListAsync();
         }
 
         public async Task<StudentDetailsDto?> GetStudentById(int id)
@@ -68,8 +72,8 @@ namespace CRUD.Repositories
                     StudentId = s.Id,
                     StudentName = s.Name,
                     StudentGrade = s.Grade,
-                    TeacherName = s.Teacher.Name ?? "No Teacher Assigned",
-                    TeacherSubject = s.Teacher.Subject ?? "No Subject Assigned"
+                    TeacherName = s.Teacher != null ? s.Teacher.Name : "No Teacher Assigned",
+                    TeacherSubject = s.Teacher != null ? s.Teacher.Subject : "No Subject Assigned"
                 })
                 .FirstOrDefaultAsync();
         }
