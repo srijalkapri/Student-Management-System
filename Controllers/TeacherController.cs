@@ -19,85 +19,67 @@ namespace CRUD.Controllers
 
         }
 
+
         [HttpPost("CreateTeacher")]
         public async Task<IActionResult> CreateTeacher([FromBody] TeacherCreateDto teacherdto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var result = await _teacherService.CreateTeacher(teacherdto);
-            return CreatedAtAction(nameof(GetTeacherById), new { id = result }, teacherdto);
+            var response = await _teacherService.CreateTeacher(teacherdto);
+            return Ok(response);
         }
 
-        [HttpGet("GetAllTeachers")]
+       [HttpGet("GetAllTeachers")]
         public async Task<IActionResult> GetAllTeachers()
         {
-            var teachers = await _teacherService.GetAllTeachers();
-            return Ok(teachers);
+            var response = await _teacherService.GetAllTeachers();
+            return Ok(response);
         }
-
 
         [HttpGet("GetTeacherById")]
         public async Task<IActionResult> GetTeacherById(int id)
         {
+            var response = await _teacherService.GetTeacherById(id);
 
-            var teacherId = await _teacherService.GetTeacherById(id);
-
-            if (teacherId == null)
+            if (!response.Success)
             {
-                return NotFound($"Teacher with ID {id} not found. please enter the valid Id");
+                return NotFound(response);
             }
 
-            return Ok(teacherId);
+            return Ok(response);
         }
-
 
         [HttpGet("GetTeacherDetails")]
-
         public async Task<IActionResult> GetTeacherDetails(int id)
         {
+            var response = await _teacherService.GetTeacherDetails(id);
 
-            var teacherDetails = await _teacherService.GetTeacherDetails(id);
-
-            if (teacherDetails == null)
+            if (!response.Success)
             {
-                return NotFound($"Teacher with ID {id} not found. Please enter a valid ID.");
+                return NotFound(response);
             }
 
-            return Ok(teacherDetails);
-
+            return Ok(response);
         }
 
-
         [HttpPut("UpdateTeacher")]
-
         public async Task<IActionResult> UpdateTeacher(int id, [FromBody] TeacherCreateDto teacherdto)
         {
-            if (!ModelState.IsValid)
+            var response = await _teacherService.UpdateTeacher(id, teacherdto);
+            if (!response.Success)
             {
-                return BadRequest(ModelState);
+                return NotFound(response);
             }
-            var result = await _teacherService.UpdateTeacher(id, teacherdto);
-            if (result == 0)
-            {
-                return NotFound($"Teacher with ID {id} not found. Please enter a valid ID.");
-            }
-            return NoContent();
+            return Ok(response);
         }
 
         [HttpDelete("DeleteTeacher")]
-
         public async Task<IActionResult> DeleteTeacher(int id)
         {
-            var result = await _teacherService.DeleteTeacher(id);
-            if (result == 0)
+            var response = await _teacherService.DeleteTeacher(id);
+            if (!response.Success)
             {
-                return NotFound($"Teacher with ID {id} not found. Please enter a valid ID.");
+                return NotFound(response);
             }
-            return NoContent();
-
+            return Ok(response);
         }
-}
+    }
 }

@@ -1,19 +1,20 @@
-﻿using CRUD.DTOs;
+using CRUD.DTOs;
+using CRUD.Responses;
 
 namespace CRUD.Interfaces
 {
     public interface ITeacherServices
     {
 
-        Task<int> CreateTeacher(TeacherCreateDto teacherdto);
-        Task<int> UpdateTeacher(int id, TeacherCreateDto teacherdto);
-        Task<int> DeleteTeacher(int id);
+        Task<ServiceResponse<int>> CreateTeacher(TeacherCreateDto teacherdto);
+        Task<ServiceResponse<int>> UpdateTeacher(int id, TeacherCreateDto teacherdto);
+        Task<ServiceResponse<int>> DeleteTeacher(int id);
 
-        Task<List<TeacherResponseDto>> GetAllTeachers();
+        Task<ServiceResponse<List<TeacherResponseDto>>> GetAllTeachers();
 
-        Task<TeacherResponseDto?> GetTeacherById(int id);
+        Task<ServiceResponse<TeacherResponseDto?>> GetTeacherById(int id);
 
-        Task<TeacherDetailDto?> GetTeacherDetails(int id);
+        Task<ServiceResponse<TeacherDetailDto?>> GetTeacherDetails(int id);
 
     }
 }

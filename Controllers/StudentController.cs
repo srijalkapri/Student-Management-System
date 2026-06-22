@@ -8,7 +8,7 @@ namespace CRUD.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class StudentController : ControllerBase
-    {
+  {
 
         private readonly IStudentService _studentService;
 
@@ -21,79 +21,63 @@ namespace CRUD.Controllers
         public async Task<IActionResult> CreateStudent([FromBody] StudentCreate studentdto)
         {
             var response = await _studentService.CreateStudent(studentdto);
-            return CreatedAtAction(nameof(GetStudentById), new { id = response.Data }, response);
-            }
 
-            var studentId = await _studentService.CreateStudent(studentdto);
-
-            return CreatedAtAction(nameof(GetStudentById), new { id = studentId }, studentdto);
-        }
+            return Ok(response);
+  }
 
         [HttpGet("GetAllStudents")]
         public async Task<IActionResult> GetAllStudents()
+
         {
 
-            var students = await _studentService.GetAllStudents();
-            return Ok(students);
+            var response = await _studentService.GetAllStudents();
+
+            return Ok(response);
+
         }
 
         [HttpGet("GetStudentsById")]
         public async Task<IActionResult> GetStudentById(int id)
         {
-            var student = await _studentService.GetStudentById(id);
+            var response = await _studentService.GetStudentById(id);
 
-            if (student == null)
+            if (!response.Success)
             {
-                return NotFound($"Student with ID {id} not found. please enter the valid Id");
+                return NotFound(response);
             }
 
-            return Ok(student);
+            return Ok(response);
         }
-
-
 
         [HttpPut("UpdateStudents")]
-
-        public async Task<IActionResult> UpdateStudent(int id ,[FromBody] StudentCreate studentDto)
+        public async Task<IActionResult> UpdateStudent(int id, [FromBody] StudentCreate studentDto)
         {
-            if (!ModelState.IsValid)
+            var response = await _studentService.UpdateStudent(id, studentDto);
+
+            if (!response.Success)
             {
-                return BadRequest(ModelState);
+                return NotFound(response);
             }
 
-            var resultId = await _studentService.UpdateStudent(id, studentDto);
-
-            if (resultId == 0)
-            {
-                return NotFound($"Student with ID {id} not found. please enter the valid Id");
-
-            }
-
-            return Ok(new { Message = "Student updated successfully", studentId = resultId });
+            return Ok(response);
         }
-
-
 
         [HttpDelete("DeleteStudents")]
-
         public async Task<IActionResult> DeleteStudent(int id)
         {
-            var resultId = await _studentService.DeleteStudent(id);
+            var response = await _studentService.DeleteStudent(id);
 
-            if (resultId == 0)
+            if (!response.Success)
             {
-                return NotFound($"Student with ID {id} not found. please enter the valid Id");
+                return NotFound(response);
             }
 
-            return Ok(new { Message = "Student deleted sucessfully", studentId = resultId });
+            return Ok(response);
         }
+
 
 
 
     }
+
 }
-
-
-
-
-

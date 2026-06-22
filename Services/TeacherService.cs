@@ -1,7 +1,8 @@
-﻿using CRUD.DTOs;
+using CRUD.DTOs;
 using CRUD.Interfaces;
 using CRUD.Models;
 using CRUD.Repositories;
+using CRUD.Responses;
 
 
 namespace CRUD.Services
@@ -16,8 +17,9 @@ namespace CRUD.Services
             _teacherRepository = teacherRepository;
         }
 
-        public async Task<int> CreateTeacher(TeacherCreateDto teacherdto)
+        public async Task<ServiceResponse<int>> CreateTeacher(TeacherCreateDto teacherdto)
         {
+            var response = new ServiceResponse<int>();
             var teacher = new Teacher
             {
 
@@ -26,45 +28,96 @@ namespace CRUD.Services
                 Grades = teacherdto.Grades
 
             };
-            return await _teacherRepository.CreateTeacher(teacher);
+
+            var teacherId = await _teacherRepository.CreateTeacher(teacher);
+            response.Data = teacherId;
+            response.Message = "Teacher created successfully.";
+            return response;
         }
 
-        public async Task<int> UpdateTeacher(int id, TeacherCreateDto teacherdto)
+        public async Task<ServiceResponse<int>> UpdateTeacher(int id, TeacherCreateDto teacherdto)
         {
-
+            var response = new ServiceResponse<int>();
             var teacher = new Teacher
-            {
 
+            {
                 Id = id,
                 Name = teacherdto.Name,
                 Subject = teacherdto.Subject,
                 Grades = teacherdto.Grades
 
             };
-            return await _teacherRepository.UpdateTeacher(teacher);
+
+
+
+            var result = await _teacherRepository.UpdateTeacher(teacher);
+            if (result == 0)
+            {
+                response.Success = false;
+                response.Message = $"Teacher with ID {id} not found.";
+                return response;
+            }
+
+            response.Data = result;
+            response.Message = "Teacher updated successfully.";
+            return response;
         }
 
-        public async Task<int> DeleteTeacher(int id)
+        public async Task<ServiceResponse<int>> DeleteTeacher(int id)
         {
-            return await _teacherRepository.DeleteTeacher(id);
+            var response = new ServiceResponse<int>();
+            var result = await _teacherRepository.DeleteTeacher(id);
+            if (result == 0)
+            {
+                response.Success = false;
+                response.Message = $"Teacher with ID {id} not found.";
+                return response;
+            }
+
+            response.Data = result;
+            response.Message = "Teacher deleted successfully.";
+            return response;
         }
 
-        public async Task<List<TeacherResponseDto>> GetAllTeachers()
+        public async Task<ServiceResponse<List<TeacherResponseDto>>> GetAllTeachers()
         {
-            return await _teacherRepository.GetAllTeachers();
-
+            var response = new ServiceResponse<List<TeacherResponseDto>>();
+            var teachers = await _teacherRepository.GetAllTeachers();
+            response.Data = teachers;
+            response.Message = "All teachers retrieved successfully.";
+            return response;
         }
 
-        public async Task<TeacherResponseDto?> GetTeacherById(int id)
+        public async Task<ServiceResponse<TeacherResponseDto?>> GetTeacherById(int id)
         {
-            return await _teacherRepository.GetTeacherById(id);
+            var response = new ServiceResponse<TeacherResponseDto?>();
+            var teacher = await _teacherRepository.GetTeacherById(id);
+            if (teacher == null)
+            {
+                response.Success = false;
+                response.Message = $"Teacher with ID {id} not found.";
+                return response;
+            }
+
+            response.Data = teacher;
+            response.Message = "Teacher retrieved successfully.";
+            return response;
         }
 
-        public async Task<TeacherDetailDto?> GetTeacherDetails(int id)
+        public async Task<ServiceResponse<TeacherDetailDto?>> GetTeacherDetails(int id)
         {
-            return await _teacherRepository.GetTeacherDetails(id);
+            var response = new ServiceResponse<TeacherDetailDto?>();
+            var details = await _teacherRepository.GetTeacherDetails(id);
+            if (details == null)
+            {
+                response.Success = false;
+                response.Message = $"Teacher details for ID {id} not found.";
+                return response;
+            }
+
+            response.Data = details;
+            response.Message = "Teacher details retrieved successfully.";
+            return response;
         }
-
-
     }
 }

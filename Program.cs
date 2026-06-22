@@ -3,6 +3,7 @@ using CRUD.Interfaces;
 using CRUD.Repositories;
 using CRUD.Services;
 using Microsoft.EntityFrameworkCore;
+using CRUD.Responses;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,27 @@ var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConn
     ?? throw new InvalidOperationException("Connection string 'PostgreSQLConnection' not found.");
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            var response = new ServiceResponse<object>
+            {
+                Success = false,
+                Message = "One or more validation errors occurred.",
+                Errors = errors
+            };
+
+            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(response);
+        };
+    });
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseLazyLoadingProxies()
