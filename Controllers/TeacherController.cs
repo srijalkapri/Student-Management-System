@@ -14,6 +14,7 @@ namespace CRUD.Controllers
         private readonly ITeacherServices _teacherService;
 
         public TeacherController(ITeacherServices teacherService)
+
         {
             _teacherService = teacherService;
 
@@ -21,13 +22,13 @@ namespace CRUD.Controllers
 
 
         [HttpPost("CreateTeacher")]
-        public async Task<IActionResult> CreateTeacher([FromBody] TeacherCreateDto teacherdto)
+        public async Task<IActionResult> CreateTeacher([FromBody] TeacherCreateDto teacherDto)
         {
-            var response = await _teacherService.CreateTeacher(teacherdto);
+            var response = await _teacherService.CreateTeacher(teacherDto);
             return Ok(response);
         }
 
-       [HttpGet("GetAllTeachers")]
+        [HttpGet("GetAllTeachers")]
         public async Task<IActionResult> GetAllTeachers()
         {
             var response = await _teacherService.GetAllTeachers();
@@ -37,8 +38,8 @@ namespace CRUD.Controllers
         [HttpGet("GetTeacherById")]
         public async Task<IActionResult> GetTeacherById(int id)
         {
-            var response = await _teacherService.GetTeacherById(id);
 
+            var response = await _teacherService.GetTeacherById(id);
             if (!response.Success)
             {
                 return NotFound(response);
@@ -50,10 +51,13 @@ namespace CRUD.Controllers
         [HttpGet("GetTeacherDetails")]
         public async Task<IActionResult> GetTeacherDetails(int id)
         {
-            var response = await _teacherService.GetTeacherDetails(id);
 
+            var response = await _teacherService.GetTeacherDetails(id);
             if (!response.Success)
+
+
             {
+
                 return NotFound(response);
             }
 
@@ -61,9 +65,9 @@ namespace CRUD.Controllers
         }
 
         [HttpPut("UpdateTeacher")]
-        public async Task<IActionResult> UpdateTeacher(int id, [FromBody] TeacherCreateDto teacherdto)
+        public async Task<IActionResult> UpdateTeacher(int id, [FromBody] TeacherCreateDto teacherDto)
         {
-            var response = await _teacherService.UpdateTeacher(id, teacherdto);
+            var response = await _teacherService.UpdateTeacher(id, teacherDto);
             if (!response.Success)
             {
                 return NotFound(response);

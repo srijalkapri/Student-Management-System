@@ -4,9 +4,8 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Grade { get; set; } = string.Empty;
-        public int? TeacherId { get; set; }
+        public int GradeId { get; set; }
 
-        public virtual Teacher? Teacher { get; set; }
+        public virtual Grade Grade { get; set; } = null!;
     }
 }

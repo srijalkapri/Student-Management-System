@@ -1,12 +1,9 @@
 using CRUD.Interfaces;
 using CRUD.Models;
 using CRUD.DTOs;
-using CRUD.Responses;   
+using CRUD.Responses;
 
-
-
-
-namespace CRUD.Services 
+namespace CRUD.Services
 {
     public class StudentService : IStudentService
     {
@@ -15,17 +12,15 @@ namespace CRUD.Services
         public StudentService(IStudentRepository studentRepository)
         {
             _studentRepository = studentRepository;
-
         }
 
-        public async Task<ServiceResponse<int>> CreateStudent(StudentCreate studentDto)
+        public async Task<ServiceResponse<int>> CreateStudent(StudentCreateDto studentDto)
         {
             var response = new ServiceResponse<int>();
             var student = new Student
             {
                 Name = studentDto.Name,
-                Grade = studentDto.Grade,
-                TeacherId = studentDto.TeacherId
+                GradeId = studentDto.GradeId
             };
 
             var studentId = await _studentRepository.CreateStudent(student);
@@ -34,15 +29,14 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<int>> UpdateStudent(int id, StudentCreate studentDto)
+        public async Task<ServiceResponse<int>> UpdateStudent(int id, StudentCreateDto studentDto)
         {
             var response = new ServiceResponse<int>();
             var student = new Student
             {
                 Id = id,
                 Name = studentDto.Name,
-                Grade = studentDto.Grade,
-                TeacherId = studentDto.TeacherId
+                GradeId = studentDto.GradeId
             };
 
             var result = await _studentRepository.UpdateStudent(student);
@@ -99,5 +93,4 @@ namespace CRUD.Services
             return response;
         }
     }
-
 }

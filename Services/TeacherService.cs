@@ -1,13 +1,10 @@
 using CRUD.DTOs;
 using CRUD.Interfaces;
 using CRUD.Models;
-using CRUD.Repositories;
 using CRUD.Responses;
-
 
 namespace CRUD.Services
 {
-
     public class TeacherService : ITeacherServices
     {
         private readonly ITeacherRepository _teacherRepository;
@@ -17,16 +14,12 @@ namespace CRUD.Services
             _teacherRepository = teacherRepository;
         }
 
-        public async Task<ServiceResponse<int>> CreateTeacher(TeacherCreateDto teacherdto)
+        public async Task<ServiceResponse<int>> CreateTeacher(TeacherCreateDto teacherDto)
         {
             var response = new ServiceResponse<int>();
             var teacher = new Teacher
             {
-
-                Name = teacherdto.Name,
-                Subject = teacherdto.Subject,
-                Grades = teacherdto.Grades
-
+                Name = teacherDto.Name
             };
 
             var teacherId = await _teacherRepository.CreateTeacher(teacher);
@@ -35,20 +28,14 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<int>> UpdateTeacher(int id, TeacherCreateDto teacherdto)
+        public async Task<ServiceResponse<int>> UpdateTeacher(int id, TeacherCreateDto teacherDto)
         {
             var response = new ServiceResponse<int>();
             var teacher = new Teacher
-
             {
                 Id = id,
-                Name = teacherdto.Name,
-                Subject = teacherdto.Subject,
-                Grades = teacherdto.Grades
-
+                Name = teacherDto.Name
             };
-
-
 
             var result = await _teacherRepository.UpdateTeacher(teacher);
             if (result == 0)
@@ -104,9 +91,9 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<TeacherDetailDto?>> GetTeacherDetails(int id)
+        public async Task<ServiceResponse<TeacherDetailsDto?>> GetTeacherDetails(int id)
         {
-            var response = new ServiceResponse<TeacherDetailDto?>();
+            var response = new ServiceResponse<TeacherDetailsDto?>();
             var details = await _teacherRepository.GetTeacherDetails(id);
             if (details == null)
             {

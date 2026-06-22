@@ -4,12 +4,10 @@ using CRUD.Interfaces;
 using CRUD.Models;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace CRUD.Repositories
 {
     public class StudentRepository : IStudentRepository
     {
-
         private readonly ApplicationDbContext _context;
 
         public StudentRepository(ApplicationDbContext context)
@@ -24,13 +22,10 @@ namespace CRUD.Repositories
             return student.Id;
         }
 
-        public async Task<int>UpdateStudent(Student student)
+        public async Task<int> UpdateStudent(Student student)
         {
             var exists = await _context.Students.AnyAsync(s => s.Id == student.Id);
-            if (!exists)
-            {
-                return 0;
-            }
+            if (!exists) return 0;
 
             _context.Students.Update(student);
             await _context.SaveChangesAsync();
@@ -40,10 +35,8 @@ namespace CRUD.Repositories
         public async Task<int> DeleteStudent(int id)
         {
             var student = await _context.Students.FindAsync(id);
-            if (student == null)
-            {
-                return 0;
-            }
+            if (student == null) return 0;
+
             _context.Students.Remove(student);
             await _context.SaveChangesAsync();
             return student.Id;
@@ -52,32 +45,38 @@ namespace CRUD.Repositories
         public async Task<List<StudentDetailsDto>> GetAllStudents()
         {
             return await _context.Students
-            .Select(s => new StudentDetailsDto
-
-            {
-                StudentId = s.Id,
-                StudentName = s.Name,
-                StudentGrade = s.Grade,
-                TeacherName = s.Teacher != null ? s.Teacher.Name : "No Teacher Assigned",
-                TeacherSubject = s.Teacher != null ? s.Teacher.Subject : "No Subject Assigned"
-            }).ToListAsync();
+                .Include(s => s.Grade)
+                .ThenInclude(g => g.Teacher)
+                .Select(s => new StudentDetailsDto
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    GradeId = s.GradeId,
+                    ClassName = s.Grade.ClassName,
+                    Section = s.Grade.Section,
+                    Subject = s.Grade.Subject,
+                    TeacherName = s.Grade.Teacher.Name
+                })
+                .ToListAsync();
         }
 
         public async Task<StudentDetailsDto?> GetStudentById(int id)
         {
             return await _context.Students
+                .Include(s => s.Grade)
+                .ThenInclude(g => g.Teacher)
                 .Where(s => s.Id == id)
                 .Select(s => new StudentDetailsDto
                 {
-                    StudentId = s.Id,
-                    StudentName = s.Name,
-                    StudentGrade = s.Grade,
-                    TeacherName = s.Teacher != null ? s.Teacher.Name : "No Teacher Assigned",
-                    TeacherSubject = s.Teacher != null ? s.Teacher.Subject : "No Subject Assigned"
+                    Id = s.Id,
+                    Name = s.Name,
+                    GradeId = s.GradeId,
+                    ClassName = s.Grade.ClassName,
+                    Section = s.Grade.Section,
+                    Subject = s.Grade.Subject,
+                    TeacherName = s.Grade.Teacher.Name
                 })
                 .FirstOrDefaultAsync();
         }
-
-
     }
 }
