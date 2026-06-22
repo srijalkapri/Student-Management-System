@@ -20,9 +20,8 @@ namespace CRUD.Controllers
         [HttpPost("CreateStudent")]
         public async Task<IActionResult> CreateStudent([FromBody] StudentCreate studentdto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
+            var response = await _studentService.CreateStudent(studentdto);
+            return CreatedAtAction(nameof(GetStudentById), new { id = response.Data }, response);
             }
 
             var studentId = await _studentService.CreateStudent(studentdto);
