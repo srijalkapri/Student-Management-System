@@ -1,10 +1,6 @@
 using CRUD.DTOs;
 using CRUD.Interfaces;
-using CRUD.Models;
 using CRUD.Responses;
-using CRUD.Repositories;
-using System.Linq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CRUD.Services
@@ -22,28 +18,22 @@ namespace CRUD.Services
         {
             var response = new ServiceResponse<int>();
             
-            if (!await _repository.GradeSubjectExistsAsync(dto.GradeSubjectId))
+            if (!await _repository.GradeSubjectExists(dto.GradeSubjectId))
             {
                 response.Success = false;
                 response.Message = "GradeSubject not found.";
                 return response;
             }
             
-            if (!await _repository.TeacherExistsAsync(dto.TeacherId))
+            if (!await _repository.TeacherExists(dto.TeacherId))
             {
                 response.Success = false;
                 response.Message = "Teacher not found.";
                 return response;
             }
 
-            var gradeSubjectTeacher = new GradeSubjectTeacher
-            {
-                GradeSubjectId = dto.GradeSubjectId,
-                TeacherId = dto.TeacherId
-            };
-
-            var result = await _repository.CreateAsync(gradeSubjectTeacher);
-            response.Data = result.Id;
+            var result = await _repository.Create(dto);
+            response.Data = result;
             response.Message = "GradeSubjectTeacher created successfully.";
             return response;
         }
@@ -52,36 +42,29 @@ namespace CRUD.Services
         {
             var response = new ServiceResponse<int>();
 
-            if (!await _repository.GradeSubjectExistsAsync(dto.GradeSubjectId))
+            if (!await _repository.GradeSubjectExists(dto.GradeSubjectId))
             {
                 response.Success = false;
                 response.Message = "GradeSubject not found.";
                 return response;
             }
             
-            if (!await _repository.TeacherExistsAsync(dto.TeacherId))
+            if (!await _repository.TeacherExists(dto.TeacherId))
             {
                 response.Success = false;
                 response.Message = "Teacher not found.";
                 return response;
             }
 
-            var gradeSubjectTeacher = new GradeSubjectTeacher
-            {
-                Id = id,
-                GradeSubjectId = dto.GradeSubjectId,
-                TeacherId = dto.TeacherId
-            };
-
-            var result = await _repository.UpdateAsync(gradeSubjectTeacher);
-            if (result == null)
+            var result = await _repository.Update(id, dto);
+            if (result == 0)
             {
                 response.Success = false;
                 response.Message = "GradeSubjectTeacher not found.";
                 return response;
             }
 
-            response.Data = result.Id;
+            response.Data = result;
             response.Message = "GradeSubjectTeacher updated successfully.";
             return response;
         }
@@ -89,8 +72,8 @@ namespace CRUD.Services
         public async Task<ServiceResponse<int>> DeleteGradeSubjectTeacher(int id)
         {
             var response = new ServiceResponse<int>();
-            var result = await _repository.DeleteAsync(id);
-            if (!result)
+            var result = await _repository.Delete(id);
+            if (result == 0)
             {
                 response.Success = false;
                 response.Message = "GradeSubjectTeacher not found.";
@@ -105,20 +88,8 @@ namespace CRUD.Services
         public async Task<ServiceResponse<List<GradeSubjectTeacherResponseDto>>> GetAllGradeSubjectTeachers()
         {
             var response = new ServiceResponse<List<GradeSubjectTeacherResponseDto>>();
-            var gradeSubjectTeachers = await _repository.GetAllAsync();
-            var dtos = gradeSubjectTeachers.Select(gst => new GradeSubjectTeacherResponseDto
-            {
-                Id = gst.Id,
-                GradeSubjectId = gst.GradeSubjectId,
-                GradeId = gst.GradeSubject.GradeId,
-                GradeName = gst.GradeSubject.Grade.ClassName,
-                SubjectId = gst.GradeSubject.SubjectId,
-                SubjectName = gst.GradeSubject.Subject.Name,
-                TeacherId = gst.TeacherId,
-                TeacherName = gst.Teacher.Name
-            }).ToList();
-
-            response.Data = dtos;
+            var gradeSubjectTeachers = await _repository.GetAll();
+            response.Data = gradeSubjectTeachers;
             response.Message = "All GradeSubjectTeachers retrieved successfully.";
             return response;
         }
@@ -126,7 +97,7 @@ namespace CRUD.Services
         public async Task<ServiceResponse<GradeSubjectTeacherResponseDto>> GetGradeSubjectTeacherById(int id)
         {
             var response = new ServiceResponse<GradeSubjectTeacherResponseDto>();
-            var gradeSubjectTeacher = await _repository.GetByIdAsync(id);
+            var gradeSubjectTeacher = await _repository.GetById(id);
             if (gradeSubjectTeacher == null)
             {
                 response.Success = false;
@@ -134,19 +105,7 @@ namespace CRUD.Services
                 return response;
             }
 
-            var dto = new GradeSubjectTeacherResponseDto
-            {
-                Id = gradeSubjectTeacher.Id,
-                GradeSubjectId = gradeSubjectTeacher.GradeSubjectId,
-                GradeId = gradeSubjectTeacher.GradeSubject.GradeId,
-                GradeName = gradeSubjectTeacher.GradeSubject.Grade.ClassName,
-                SubjectId = gradeSubjectTeacher.GradeSubject.SubjectId,
-                SubjectName = gradeSubjectTeacher.GradeSubject.Subject.Name,
-                TeacherId = gradeSubjectTeacher.TeacherId,
-                TeacherName = gradeSubjectTeacher.Teacher.Name
-            };
-
-            response.Data = dto;
+            response.Data = gradeSubjectTeacher;
             response.Message = "GradeSubjectTeacher retrieved successfully.";
             return response;
         }

@@ -12,6 +12,7 @@ namespace CRUD.Data.Configurations
             builder.HasKey(gs => gs.Id);
 
             // Unique constraint: A grade can't have the same subject twice
+
             builder.HasIndex(gs => new { gs.GradeId, gs.SubjectId }).IsUnique();
 
             builder.HasOne(gs => gs.Grade)
