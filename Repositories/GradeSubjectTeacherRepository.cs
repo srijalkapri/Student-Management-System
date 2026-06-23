@@ -13,7 +13,7 @@ namespace CRUD.Repositories
             _context = context;
         }
 
-        public async Task<List<GradeSubjectTeacher>> GetAllAsync()
+        public async Task<List<GradeSubjectTeacher>> GetAll()
         {
             return await _context.GradeSubjectTeachers
                 .Include(gst => gst.GradeSubject)
@@ -24,7 +24,7 @@ namespace CRUD.Repositories
                 .ToListAsync();
         }
 
-        public async Task<GradeSubjectTeacher?> GetByIdAsync(int id)
+        public async Task<GradeSubjectTeacher?> GetById(int id)
         {
             return await _context.GradeSubjectTeachers
                 .Include(gst => gst.GradeSubject)
@@ -35,14 +35,14 @@ namespace CRUD.Repositories
                 .FirstOrDefaultAsync(gst => gst.Id == id);
         }
 
-        public async Task<GradeSubjectTeacher> CreateAsync(GradeSubjectTeacher gradeSubjectTeacher)
+        public async Task<GradeSubjectTeacher> Create(GradeSubjectTeacher gradeSubjectTeacher)
         {
             _context.GradeSubjectTeachers.Add(gradeSubjectTeacher);
             await _context.SaveChangesAsync();
             return gradeSubjectTeacher;
         }
 
-        public async Task<GradeSubjectTeacher?> UpdateAsync(GradeSubjectTeacher gradeSubjectTeacher)
+        public async Task<GradeSubjectTeacher?> Update(GradeSubjectTeacher gradeSubjectTeacher)
         {
             var existing = await _context.GradeSubjectTeachers.FindAsync(gradeSubjectTeacher.Id);
             if (existing == null) return null;
@@ -52,7 +52,7 @@ namespace CRUD.Repositories
             return existing;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> Delete(int id)
         {
             var gradeSubjectTeacher = await _context.GradeSubjectTeachers.FindAsync(id);
             if (gradeSubjectTeacher == null) return false;
@@ -61,7 +61,7 @@ namespace CRUD.Repositories
             return true;
         }
 
-        public async Task<bool> GradeSubjectExistsAsync(int gradeSubjectId)
+        public async Task<bool> GradeSubjectExists(int gradeSubjectId)
         {
             return await _context.GradeSubjects.AnyAsync(gs => gs.Id == gradeSubjectId);
         }
