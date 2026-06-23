@@ -45,15 +45,10 @@ namespace CRUD.Repositories
         public async Task<List<GradeResponseDto>> GetAllGrades()
         {
             return await _context.Grades
-                .Include(g => g.Teacher)
                 .Select(g => new GradeResponseDto
                 {
                     Id = g.Id,
-                    ClassName = g.ClassName,
-                    Section = g.Section,
-                    Subject = g.Subject,
-                    TeacherId = g.TeacherId,
-                    TeacherName = g.Teacher.Name
+                    ClassName = g.ClassName
                 })
                 .ToListAsync();
         }
@@ -61,16 +56,11 @@ namespace CRUD.Repositories
         public async Task<GradeResponseDto?> GetGradeById(int id)
         {
             return await _context.Grades
-                .Include(g => g.Teacher)
                 .Where(g => g.Id == id)
                 .Select(g => new GradeResponseDto
                 {
                     Id = g.Id,
-                    ClassName = g.ClassName,
-                    Section = g.Section,
-                    Subject = g.Subject,
-                    TeacherId = g.TeacherId,
-                    TeacherName = g.Teacher.Name
+                    ClassName = g.ClassName
                 })
                 .FirstOrDefaultAsync();
         }

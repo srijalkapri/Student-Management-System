@@ -22,12 +22,14 @@ namespace CRUD.Repositories
             return student.Id;
         }
 
-        public async Task<int> UpdateStudent(Student student)
+        public async Task<int> UpdateStudent(int id, string name, int gradeId)
         {
-            var exists = await _context.Students.AnyAsync(s => s.Id == student.Id);
-            if (!exists) return 0;
+            var student = await _context.Students.FindAsync(id);
+            if (student == null) return 0;
 
-            _context.Students.Update(student);
+            student.Name = name;
+            student.GradeId = gradeId;
+
             await _context.SaveChangesAsync();
             return student.Id;
         }
@@ -44,39 +46,100 @@ namespace CRUD.Repositories
 
         public async Task<List<StudentDetailsDto>> GetAllStudents()
         {
-            return await _context.Students
+            var students = await _context.Students
                 .Include(s => s.Grade)
-                .ThenInclude(g => g.Teacher)
-                .Select(s => new StudentDetailsDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    GradeId = s.GradeId,
-                    ClassName = s.Grade.ClassName,
-                    Section = s.Grade.Section,
-                    Subject = s.Grade.Subject,
-                    TeacherName = s.Grade.Teacher.Name
-                })
                 .ToListAsync();
+
+            var studentDtos = new List<StudentDetailsDto>();
+            foreach (var student in students)
+            {
+                var gradeSubjects = await _context.GradeSubjects
+                    .Include(gs => gs.Subject)
+                    .Where(gs => gs.GradeId == student.GradeId)
+                    .ToListAsync();
+
+                var subjects = new List<GradeSubjectWithTeachersResponseDto>();
+                foreach (var gs in gradeSubjects)
+                {
+                    var teachers = await _context.GradeSubjectTeachers
+                        .Include(gst => gst.Teacher)
+                        .Where(gst => gst.GradeSubjectId == gs.Id)
+                        .Select(gst => new TeacherResponseDto
+                        {
+                            Id = gst.TeacherId,
+                            Name = gst.Teacher.Name
+                        })
+                        .ToListAsync();
+
+                    subjects.Add(new GradeSubjectWithTeachersResponseDto
+                    {
+                        Id = gs.Id,
+                        GradeId = gs.GradeId,
+                        GradeName = student.Grade.ClassName,
+                        SubjectId = gs.SubjectId,
+                        SubjectName = gs.Subject.Name,
+                        Teachers = teachers
+                    });
+                }
+
+                studentDtos.Add(new StudentDetailsDto
+                {
+                    Id = student.Id,
+                    Name = student.Name,
+                    GradeId = student.GradeId,
+                    GradeName = student.Grade.ClassName,
+                    Subjects = subjects
+                });
+            }
+
+            return studentDtos;
         }
 
         public async Task<StudentDetailsDto?> GetStudentById(int id)
         {
-            return await _context.Students
+            var student = await _context.Students
                 .Include(s => s.Grade)
-                .ThenInclude(g => g.Teacher)
-                .Where(s => s.Id == id)
-                .Select(s => new StudentDetailsDto
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (student == null) return null;
+
+            var gradeSubjects = await _context.GradeSubjects
+                .Include(gs => gs.Subject)
+                .Where(gs => gs.GradeId == student.GradeId)
+                .ToListAsync();
+
+            var subjects = new List<GradeSubjectWithTeachersResponseDto>();
+            foreach (var gs in gradeSubjects)
+            {
+                var teachers = await _context.GradeSubjectTeachers
+                    .Include(gst => gst.Teacher)
+                    .Where(gst => gst.GradeSubjectId == gs.Id)
+                    .Select(gst => new TeacherResponseDto
+                    {
+                        Id = gst.TeacherId,
+                        Name = gst.Teacher.Name
+                    })
+                    .ToListAsync();
+
+                subjects.Add(new GradeSubjectWithTeachersResponseDto
                 {
-                    Id = s.Id,
-                    Name = s.Name,
-                    GradeId = s.GradeId,
-                    ClassName = s.Grade.ClassName,
-                    Section = s.Grade.Section,
-                    Subject = s.Grade.Subject,
-                    TeacherName = s.Grade.Teacher.Name
-                })
-                .FirstOrDefaultAsync();
+                    Id = gs.Id,
+                    GradeId = gs.GradeId,
+                    GradeName = student.Grade.ClassName,
+                    SubjectId = gs.SubjectId,
+                    SubjectName = gs.Subject.Name,
+                    Teachers = teachers
+                });
+            }
+
+            return new StudentDetailsDto
+            {
+                Id = student.Id,
+                Name = student.Name,
+                GradeId = student.GradeId,
+                GradeName = student.Grade.ClassName,
+                Subjects = subjects
+            };
         }
     }
 }

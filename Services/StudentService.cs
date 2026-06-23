@@ -32,14 +32,7 @@ namespace CRUD.Services
         public async Task<ServiceResponse<int>> UpdateStudent(int id, StudentCreateDto studentDto)
         {
             var response = new ServiceResponse<int>();
-            var student = new Student
-            {
-                Id = id,
-                Name = studentDto.Name,
-                GradeId = studentDto.GradeId
-            };
-
-            var result = await _studentRepository.UpdateStudent(student);
+            var result = await _studentRepository.UpdateStudent(id, studentDto.Name, studentDto.GradeId);
             if (result == 0)
             {
                 response.Success = false;

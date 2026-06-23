@@ -1,11 +1,10 @@
 namespace CRUD.Models
 {
-    public class Grade
+    public class Subject
     {
         public int Id { get; set; }
-        public string ClassName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         public virtual ICollection<GradeSubject> GradeSubjects { get; set; } = new List<GradeSubject>();
-        public virtual ICollection<Student> Students { get; set; } = new List<Student>();
     }
 }

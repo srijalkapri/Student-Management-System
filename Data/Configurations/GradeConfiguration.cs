@@ -14,19 +14,6 @@ namespace CRUD.Data.Configurations
             builder.Property(g => g.ClassName)
                 .IsRequired()
                 .HasMaxLength(50);
-
-            builder.Property(g => g.Section)
-                .IsRequired()
-                .HasMaxLength(10);
-
-            builder.Property(g => g.Subject)
-                .IsRequired()
-                .HasMaxLength(50);
-
-            builder.HasOne(g => g.Teacher)
-                .WithMany(t => t.Grades)
-                .HasForeignKey(g => g.TeacherId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -1,0 +1,89 @@
+using CRUD.DTOs;
+using CRUD.Interfaces;
+using CRUD.Models;
+using CRUD.Responses;
+
+namespace CRUD.Services
+{
+    public class GradeSubjectService : IGradeSubjectService
+    {
+        private readonly IGradeSubjectRepository _gradeSubjectRepository;
+
+        public GradeSubjectService(IGradeSubjectRepository gradeSubjectRepository)
+        {
+            _gradeSubjectRepository = gradeSubjectRepository;
+        }
+
+        public async Task<ServiceResponse<int>> CreateGradeSubject(GradeSubjectCreateDto gradeSubjectDto)
+        {
+            var response = new ServiceResponse<int>();
+            var gradeSubject = new GradeSubject
+            {
+                GradeId = gradeSubjectDto.GradeId,
+                SubjectId = gradeSubjectDto.SubjectId
+            };
+
+            var gradeSubjectId = await _gradeSubjectRepository.CreateGradeSubject(gradeSubject);
+            response.Data = gradeSubjectId;
+            response.Message = "Grade subject created successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<int>> UpdateGradeSubject(int id, GradeSubjectCreateDto gradeSubjectDto)
+        {
+            var response = new ServiceResponse<int>();
+            var result = await _gradeSubjectRepository.UpdateGradeSubject(id, gradeSubjectDto);
+            if (result == 0)
+            {
+                response.Success = false;
+                response.Message = "Grade subject not found.";
+                return response;
+            }
+
+            response.Data = result;
+            response.Message = "Grade subject updated successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<int>> DeleteGradeSubject(int id)
+        {
+            var response = new ServiceResponse<int>();
+            var result = await _gradeSubjectRepository.DeleteGradeSubject(id);
+            if (result == 0)
+            {
+                response.Success = false;
+                response.Message = "Grade subject not found.";
+                return response;
+            }
+
+            response.Data = result;
+            response.Message = "Grade subject deleted successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetAllGradeSubjects()
+        {
+            var response = new ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>();
+            var gradeSubjects = await _gradeSubjectRepository.GetAllGradeSubjects();
+            response.Data = gradeSubjects;
+            response.Message = "All grade subjects retrieved successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<GradeSubjectWithTeachersResponseDto?>> GetGradeSubjectById(int id)
+        {
+            var response = new ServiceResponse<GradeSubjectWithTeachersResponseDto?>();
+            var gradeSubject = await _gradeSubjectRepository.GetGradeSubjectById(id);
+            if (gradeSubject == null)
+            {
+                response.Success = false;
+                response.Message = "Grade subject not found.";
+                return response;
+            }
+
+            response.Data = gradeSubject;
+            response.Message = "Grade subject retrieved successfully.";
+            return response;
+        }
+    }
+}

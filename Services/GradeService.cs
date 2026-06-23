@@ -19,10 +19,7 @@ namespace CRUD.Services
             var response = new ServiceResponse<int>();
             var grade = new Grade
             {
-                ClassName = gradeDto.ClassName,
-                Section = gradeDto.Section,
-                Subject = gradeDto.Subject,
-                TeacherId = gradeDto.TeacherId
+                ClassName = gradeDto.ClassName
             };
 
             var gradeId = await _gradeRepository.CreateGrade(grade);
@@ -37,10 +34,7 @@ namespace CRUD.Services
             var grade = new Grade
             {
                 Id = id,
-                ClassName = gradeDto.ClassName,
-                Section = gradeDto.Section,
-                Subject = gradeDto.Subject,
-                TeacherId = gradeDto.TeacherId
+                ClassName = gradeDto.ClassName
             };
 
             var result = await _gradeRepository.UpdateGrade(grade);

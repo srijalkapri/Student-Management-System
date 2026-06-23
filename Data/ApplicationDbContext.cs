@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using CRUD.Models;
 using Microsoft.EntityFrameworkCore;
 namespace CRUD.Data
@@ -13,6 +13,9 @@ namespace CRUD.Data
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Grade> Grades { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
+        public DbSet<GradeSubject> GradeSubjects { get; set; }
+        public DbSet<GradeSubjectTeacher> GradeSubjectTeachers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

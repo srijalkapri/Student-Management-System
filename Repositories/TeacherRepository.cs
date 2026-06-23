@@ -68,19 +68,26 @@ namespace CRUD.Repositories
         public async Task<TeacherDetailsDto?> GetTeacherDetails(int id)
         {
             return await _context.Teachers
-                .Include(t => t.Grades)
+                .Include(t => t.GradeSubjectTeachers)
+                    .ThenInclude(gst => gst.GradeSubject)
+                        .ThenInclude(gs => gs.Grade)
+                .Include(t => t.GradeSubjectTeachers)
+                    .ThenInclude(gst => gst.GradeSubject)
+                        .ThenInclude(gs => gs.Subject)
                 .Where(t => t.Id == id)
                 .Select(t => new TeacherDetailsDto
                 {
                     Id = t.Id,
                     Name = t.Name,
-                    AssignedGrades = t.Grades.Select(g => new GradeResponseDto
+                    AssignedGradeSubjectTeachers = t.GradeSubjectTeachers.Select(gst => new GradeSubjectTeacherResponseDto
                     {
-                        Id = g.Id,
-                        ClassName = g.ClassName,
-                        Section = g.Section,
-                        Subject = g.Subject,
-                        TeacherId = g.TeacherId,
+                        Id = gst.Id,
+                        GradeSubjectId = gst.GradeSubjectId,
+                        GradeId = gst.GradeSubject.GradeId,
+                        GradeName = gst.GradeSubject.Grade.ClassName,
+                        SubjectId = gst.GradeSubject.SubjectId,
+                        SubjectName = gst.GradeSubject.Subject.Name,
+                        TeacherId = gst.TeacherId,
                         TeacherName = t.Name
                     }).ToList()
                 })
