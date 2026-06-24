@@ -57,8 +57,7 @@ namespace CRUD.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    GradeId = table.Column<int>(type: "integer", nullable: false),
-                    GradeId1 = table.Column<int>(type: "integer", nullable: true)
+                    GradeId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -69,11 +68,6 @@ namespace CRUD.Migrations
                         principalTable: "Grades",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_Grades_GradeId1",
-                        column: x => x.GradeId1,
-                        principalTable: "Grades",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -83,9 +77,7 @@ namespace CRUD.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     GradeId = table.Column<int>(type: "integer", nullable: false),
-                    SubjectId = table.Column<int>(type: "integer", nullable: false),
-                    GradeId1 = table.Column<int>(type: "integer", nullable: true),
-                    SubjectId1 = table.Column<int>(type: "integer", nullable: true)
+                    SubjectId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -97,21 +89,11 @@ namespace CRUD.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_GradeSubjects_Grades_GradeId1",
-                        column: x => x.GradeId1,
-                        principalTable: "Grades",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_GradeSubjects_Subjects_SubjectId",
                         column: x => x.SubjectId,
                         principalTable: "Subjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GradeSubjects_Subjects_SubjectId1",
-                        column: x => x.SubjectId1,
-                        principalTable: "Subjects",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -121,8 +103,7 @@ namespace CRUD.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     GradeSubjectId = table.Column<int>(type: "integer", nullable: false),
-                    TeacherId = table.Column<int>(type: "integer", nullable: false),
-                    TeacherId1 = table.Column<int>(type: "integer", nullable: true)
+                    TeacherId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -139,11 +120,6 @@ namespace CRUD.Migrations
                         principalTable: "Teachers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_GradeSubjectTeachers_Teachers_TeacherId1",
-                        column: x => x.TeacherId1,
-                        principalTable: "Teachers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -153,19 +129,9 @@ namespace CRUD.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_GradeSubjects_GradeId1",
-                table: "GradeSubjects",
-                column: "GradeId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_GradeSubjects_SubjectId",
                 table: "GradeSubjects",
                 column: "SubjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_GradeSubjects_SubjectId1",
-                table: "GradeSubjects",
-                column: "SubjectId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GradeSubjectTeachers_GradeSubjectId_TeacherId",
@@ -179,19 +145,9 @@ namespace CRUD.Migrations
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GradeSubjectTeachers_TeacherId1",
-                table: "GradeSubjectTeachers",
-                column: "TeacherId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Students_GradeId",
                 table: "Students",
                 column: "GradeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Students_GradeId1",
-                table: "Students",
-                column: "GradeId1");
         }
 
         /// <inheritdoc />
