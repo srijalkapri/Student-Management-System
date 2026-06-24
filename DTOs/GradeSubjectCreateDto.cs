@@ -4,5 +4,6 @@ namespace CRUD.DTOs
     {
         public int GradeId { get; set; }
         public int SubjectId { get; set; }
+        public bool IsOptional { get; set; }
     }
 }

@@ -8,7 +8,8 @@ namespace CRUD.Interfaces
         Task<ServiceResponse<int>> CreateGradeSubject(GradeSubjectCreateDto gradeSubjectDto);
         Task<ServiceResponse<int>> UpdateGradeSubject(int id, GradeSubjectCreateDto gradeSubjectDto);
         Task<ServiceResponse<int>> DeleteGradeSubject(int id);
-        Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetAllGradeSubjects();
+        Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetAllGradeSubjects(bool? isOptional = null);
         Task<ServiceResponse<GradeSubjectWithTeachersResponseDto?>> GetGradeSubjectById(int id);
+        Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsByGradeId(int gradeId, bool? isOptional = null);
     }
 }

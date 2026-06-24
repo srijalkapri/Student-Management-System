@@ -19,7 +19,9 @@ namespace CRUD.Services
             var response = new ServiceResponse<int>();
             var teacher = new Teacher
             {
-                Name = teacherDto.Name
+                Name = teacherDto.Name,
+                Email = teacherDto.Email,
+                PhoneNo = teacherDto.PhoneNo
             };
 
             var teacherId = await _teacherRepository.CreateTeacher(teacher);
@@ -31,13 +33,7 @@ namespace CRUD.Services
         public async Task<ServiceResponse<int>> UpdateTeacher(int id, TeacherCreateDto teacherDto)
         {
             var response = new ServiceResponse<int>();
-            var teacher = new Teacher
-            {
-                Id = id,
-                Name = teacherDto.Name
-            };
-
-            var result = await _teacherRepository.UpdateTeacher(teacher);
+            var result = await _teacherRepository.UpdateTeacher(id, teacherDto.Name, teacherDto.Email, teacherDto.PhoneNo);
             if (result == 0)
             {
                 response.Success = false;

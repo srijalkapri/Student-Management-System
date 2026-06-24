@@ -48,7 +48,17 @@ namespace CRUD.Repositories
                 .Select(g => new GradeResponseDto
                 {
                     Id = g.Id,
-                    ClassName = g.ClassName
+                    ClassName = g.ClassName,
+                    ClassTeacherId = g.ClassTeacherId,
+                    ClassTeacher = g.ClassTeacher != null
+                        ? new TeacherResponseDto
+                        {
+                            Id = g.ClassTeacher.Id,
+                            Name = g.ClassTeacher.Name,
+                            Email = g.ClassTeacher.Email,
+                            PhoneNo = g.ClassTeacher.PhoneNo
+                        }
+                        : null
                 })
                 .ToListAsync();
         }
@@ -60,7 +70,17 @@ namespace CRUD.Repositories
                 .Select(g => new GradeResponseDto
                 {
                     Id = g.Id,
-                    ClassName = g.ClassName
+                    ClassName = g.ClassName,
+                    ClassTeacherId = g.ClassTeacherId,
+                    ClassTeacher = g.ClassTeacher != null
+                        ? new TeacherResponseDto
+                        {
+                            Id = g.ClassTeacher.Id,
+                            Name = g.ClassTeacher.Name,
+                            Email = g.ClassTeacher.Email,
+                            PhoneNo = g.ClassTeacher.PhoneNo
+                        }
+                        : null
                 })
                 .FirstOrDefaultAsync();
         }

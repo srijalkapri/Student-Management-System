@@ -15,6 +15,14 @@ namespace CRUD.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
 
+            builder.Property(s => s.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(s => s.PhoneNo)
+                .IsRequired()
+                .HasMaxLength(20);
+
             builder.HasOne(s => s.Grade)
                 .WithMany(g => g.Students)
                 .HasForeignKey(s => s.GradeId)

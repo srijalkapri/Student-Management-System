@@ -22,12 +22,14 @@ namespace CRUD.Repositories
             return student.Id;
         }
 
-        public async Task<int> UpdateStudent(int id, string name, int gradeId)
+        public async Task<int> UpdateStudent(int id, string name, string email, string phoneNo, int gradeId)
         {
             var student = await _context.Students.FindAsync(id);
             if (student == null) return 0;
 
             student.Name = name;
+            student.Email = email;
+            student.PhoneNo = phoneNo;
             student.GradeId = gradeId;
 
             await _context.SaveChangesAsync();
@@ -51,8 +53,20 @@ namespace CRUD.Repositories
                 {
                     Id = student.Id,
                     Name = student.Name,
+                    Email = student.Email,
+                    PhoneNo = student.PhoneNo,
                     GradeId = student.GradeId,
                     GradeName = student.Grade.ClassName,
+                    ClassTeacherId = student.Grade.ClassTeacherId,
+                    ClassTeacher = student.Grade.ClassTeacher != null
+                        ? new TeacherResponseDto
+                        {
+                            Id = student.Grade.ClassTeacher.Id,
+                            Name = student.Grade.ClassTeacher.Name,
+                            Email = student.Grade.ClassTeacher.Email,
+                            PhoneNo = student.Grade.ClassTeacher.PhoneNo
+                        }
+                        : null,
                     Subjects = student.Grade.GradeSubjects
                         .Select(gs => new GradeSubjectWithTeachersResponseDto
                         {
@@ -61,11 +75,14 @@ namespace CRUD.Repositories
                             GradeName = student.Grade.ClassName,
                             SubjectId = gs.SubjectId,
                             SubjectName = gs.Subject.Name,
+                            IsOptional = gs.IsOptional,
                             Teachers = gs.GradeSubjectTeachers
                                 .Select(gst => new TeacherResponseDto
                                 {
                                     Id = gst.TeacherId,
-                                    Name = gst.Teacher.Name
+                                    Name = gst.Teacher.Name,
+                                    Email = gst.Teacher.Email,
+                                    PhoneNo = gst.Teacher.PhoneNo
                                 })
                                 .ToList()
                         })
@@ -83,8 +100,20 @@ namespace CRUD.Repositories
                 {
                     Id = student.Id,
                     Name = student.Name,
+                    Email = student.Email,
+                    PhoneNo = student.PhoneNo,
                     GradeId = student.GradeId,
                     GradeName = student.Grade.ClassName,
+                    ClassTeacherId = student.Grade.ClassTeacherId,
+                    ClassTeacher = student.Grade.ClassTeacher != null
+                        ? new TeacherResponseDto
+                        {
+                            Id = student.Grade.ClassTeacher.Id,
+                            Name = student.Grade.ClassTeacher.Name,
+                            Email = student.Grade.ClassTeacher.Email,
+                            PhoneNo = student.Grade.ClassTeacher.PhoneNo
+                        }
+                        : null,
                     Subjects = student.Grade.GradeSubjects
                         .Select(gs => new GradeSubjectWithTeachersResponseDto
                         {
@@ -93,11 +122,14 @@ namespace CRUD.Repositories
                             GradeName = student.Grade.ClassName,
                             SubjectId = gs.SubjectId,
                             SubjectName = gs.Subject.Name,
+                            IsOptional = gs.IsOptional,
                             Teachers = gs.GradeSubjectTeachers
                                 .Select(gst => new TeacherResponseDto
                                 {
                                     Id = gst.TeacherId,
-                                    Name = gst.Teacher.Name
+                                    Name = gst.Teacher.Name,
+                                    Email = gst.Teacher.Email,
+                                    PhoneNo = gst.Teacher.PhoneNo
                                 })
                                 .ToList()
                         })

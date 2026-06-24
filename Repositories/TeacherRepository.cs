@@ -22,12 +22,15 @@ namespace CRUD.Repositories
             return teacher.Id;
         }
 
-        public async Task<int> UpdateTeacher(Teacher teacher)
+        public async Task<int> UpdateTeacher(int id, string name, string email, string phoneNo)
         {
-            var exists = await _context.Teachers.AnyAsync(t => t.Id == teacher.Id);
-            if (!exists) return 0;
+            var teacher = await _context.Teachers.FindAsync(id);
+            if (teacher == null) return 0;
 
-            _context.Teachers.Update(teacher);
+            teacher.Name = name;
+            teacher.Email = email;
+            teacher.PhoneNo = phoneNo;
+
             await _context.SaveChangesAsync();
             return teacher.Id;
         }
@@ -48,7 +51,9 @@ namespace CRUD.Repositories
                 .Select(t => new TeacherResponseDto
                 {
                     Id = t.Id,
-                    Name = t.Name
+                    Name = t.Name,
+                    Email = t.Email,
+                    PhoneNo = t.PhoneNo
                 })
                 .ToListAsync();
         }
@@ -60,7 +65,9 @@ namespace CRUD.Repositories
                 .Select(t => new TeacherResponseDto
                 {
                     Id = t.Id,
-                    Name = t.Name
+                    Name = t.Name,
+                    Email = t.Email,
+                    PhoneNo = t.PhoneNo
                 })
                 .FirstOrDefaultAsync();
         }
@@ -79,6 +86,8 @@ namespace CRUD.Repositories
                 {
                     Id = t.Id,
                     Name = t.Name,
+                    Email = t.Email,
+                    PhoneNo = t.PhoneNo,
                     AssignedGradeSubjectTeachers = t.GradeSubjectTeachers.Select(gst => new GradeSubjectTeacherResponseDto
                     {
                         Id = gst.Id,

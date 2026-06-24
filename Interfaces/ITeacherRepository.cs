@@ -6,7 +6,7 @@ namespace CRUD.Interfaces
     public interface ITeacherRepository
     {
         Task<int> CreateTeacher(Teacher teacher);
-        Task<int> UpdateTeacher(Teacher teacher);
+        Task<int> UpdateTeacher(int id, string name, string email, string phoneNo);
         Task<int> DeleteTeacher(int id);
 
         Task<List<TeacherResponseDto>> GetAllTeachers();

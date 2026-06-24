@@ -23,9 +23,9 @@ namespace CRUD.Controllers
         }
 
         [HttpGet("GetAllGradeSubjects")]
-        public async Task<IActionResult> GetAllGradeSubjects()
+        public async Task<IActionResult> GetAllGradeSubjects(bool? isOptional = null)
         {
-            var response = await _gradeSubjectService.GetAllGradeSubjects();
+            var response = await _gradeSubjectService.GetAllGradeSubjects(isOptional);
             return Ok(response);
         }
 
@@ -37,6 +37,13 @@ namespace CRUD.Controllers
             {
                 return NotFound(response);
             }
+            return Ok(response);
+        }
+
+        [HttpGet("GetGradeSubjectsByGradeId")]
+        public async Task<IActionResult> GetGradeSubjectsByGradeId(int gradeId, bool? isOptional = null)
+        {
+            var response = await _gradeSubjectService.GetGradeSubjectsByGradeId(gradeId, isOptional);
             return Ok(response);
         }
 

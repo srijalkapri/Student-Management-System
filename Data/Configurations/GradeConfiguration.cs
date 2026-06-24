@@ -14,6 +14,11 @@ namespace CRUD.Data.Configurations
             builder.Property(g => g.ClassName)
                 .IsRequired()
                 .HasMaxLength(50);
+
+            builder.HasOne(g => g.ClassTeacher)
+                .WithMany()
+                .HasForeignKey(g => g.ClassTeacherId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

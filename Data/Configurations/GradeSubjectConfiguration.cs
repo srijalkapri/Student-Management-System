@@ -24,6 +24,10 @@ namespace CRUD.Data.Configurations
                 .WithMany(s => s.GradeSubjects)
                 .HasForeignKey(gs => gs.SubjectId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(gs => gs.IsOptional)
+                .IsRequired()
+                .HasDefaultValue(false);
         }
     }
 }

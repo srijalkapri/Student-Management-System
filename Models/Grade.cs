@@ -4,7 +4,9 @@ namespace CRUD.Models
     {
         public int Id { get; set; }
         public string ClassName { get; set; } = string.Empty;
+        public int? ClassTeacherId { get; set; }
 
+        public virtual Teacher? ClassTeacher { get; set; }
         public virtual ICollection<GradeSubject> GradeSubjects { get; set; } = new List<GradeSubject>();
         public virtual ICollection<Student> Students { get; set; } = new List<Student>();
     }

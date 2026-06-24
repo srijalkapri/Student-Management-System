@@ -2,6 +2,9 @@ using CRUD.Data;
 using CRUD.Interfaces;
 using CRUD.Repositories;
 using CRUD.Services;
+using CRUD.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using CRUD.Responses;
 
@@ -9,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection")
     ?? throw new InvalidOperationException("Connection string 'PostgreSQLConnection' not found.");
+
+// Add FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<StudentCreateDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>

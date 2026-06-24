@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using CRUD.Models;
 
@@ -14,6 +14,14 @@ namespace CRUD.Data.Configurations
             builder.Property(t => t.Name)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            builder.Property(t => t.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Property(t => t.PhoneNo)
+                .IsRequired()
+                .HasMaxLength(20);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace CRUD.DTOs
         public string GradeName { get; set; } = string.Empty;
         public int SubjectId { get; set; }
         public string SubjectName { get; set; } = string.Empty;
+        public bool IsOptional { get; set; }
     }
 
     public class GradeSubjectWithTeachersResponseDto
@@ -16,6 +17,7 @@ namespace CRUD.DTOs
         public string GradeName { get; set; } = string.Empty;
         public int SubjectId { get; set; }
         public string SubjectName { get; set; } = string.Empty;
+        public bool IsOptional { get; set; }
         public List<TeacherResponseDto> Teachers { get; set; } = new List<TeacherResponseDto>();
     }
 }

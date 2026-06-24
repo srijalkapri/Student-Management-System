@@ -26,6 +26,7 @@ namespace CRUD.Repositories
                     GradeName = gst.GradeSubject.Grade.ClassName,
                     SubjectId = gst.GradeSubject.SubjectId,
                     SubjectName = gst.GradeSubject.Subject.Name,
+                    IsOptional = gst.GradeSubject.IsOptional,
                     TeacherId = gst.TeacherId,
                     TeacherName = gst.Teacher.Name
                 })
@@ -44,6 +45,7 @@ namespace CRUD.Repositories
                     GradeName = gst.GradeSubject.Grade.ClassName,
                     SubjectId = gst.GradeSubject.SubjectId,
                     SubjectName = gst.GradeSubject.Subject.Name,
+                    IsOptional = gst.GradeSubject.IsOptional,
                     TeacherId = gst.TeacherId,
                     TeacherName = gst.Teacher.Name
                 })

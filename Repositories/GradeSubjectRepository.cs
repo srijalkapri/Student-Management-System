@@ -29,6 +29,7 @@ namespace CRUD.Repositories
 
             gradeSubject.GradeId = gradeSubjectDto.GradeId;
             gradeSubject.SubjectId = gradeSubjectDto.SubjectId;
+            gradeSubject.IsOptional = gradeSubjectDto.IsOptional;
 
             await _context.SaveChangesAsync();
             return gradeSubject.Id;
@@ -44,9 +45,16 @@ namespace CRUD.Repositories
             return gradeSubject.Id;
         }
 
-        public async Task<List<GradeSubjectWithTeachersResponseDto>> GetAllGradeSubjects()
+        public async Task<List<GradeSubjectWithTeachersResponseDto>> GetAllGradeSubjects(bool? isOptional = null)
         {
-            return await _context.GradeSubjects
+            var query = _context.GradeSubjects.AsQueryable();
+
+            if (isOptional.HasValue)
+            {
+                query = query.Where(gs => gs.IsOptional == isOptional.Value);
+            }
+
+            return await query
                 .Select(gs => new GradeSubjectWithTeachersResponseDto
                 {
                     Id = gs.Id,
@@ -54,6 +62,7 @@ namespace CRUD.Repositories
                     GradeName = gs.Grade.ClassName,
                     SubjectId = gs.SubjectId,
                     SubjectName = gs.Subject.Name,
+                    IsOptional = gs.IsOptional,
                     Teachers = gs.GradeSubjectTeachers
                         .Select(gst => new TeacherResponseDto
                         {
@@ -76,6 +85,7 @@ namespace CRUD.Repositories
                     GradeName = gs.Grade.ClassName,
                     SubjectId = gs.SubjectId,
                     SubjectName = gs.Subject.Name,
+                    IsOptional = gs.IsOptional,
                     Teachers = gs.GradeSubjectTeachers
                         .Select(gst => new TeacherResponseDto
                         {
@@ -87,10 +97,16 @@ namespace CRUD.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeId(int gradeId)
+        public async Task<List<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeId(int gradeId, bool? isOptional = null)
         {
-            return await _context.GradeSubjects
-                .Where(gs => gs.GradeId == gradeId)
+            var query = _context.GradeSubjects.Where(gs => gs.GradeId == gradeId);
+
+            if (isOptional.HasValue)
+            {
+                query = query.Where(gs => gs.IsOptional == isOptional.Value);
+            }
+
+            return await query
                 .Select(gs => new GradeSubjectWithTeachersResponseDto
                 {
                     Id = gs.Id,
@@ -98,6 +114,7 @@ namespace CRUD.Repositories
                     GradeName = gs.Grade.ClassName,
                     SubjectId = gs.SubjectId,
                     SubjectName = gs.Subject.Name,
+                    IsOptional = gs.IsOptional,
                     Teachers = gs.GradeSubjectTeachers
                         .Select(gst => new TeacherResponseDto
                         {

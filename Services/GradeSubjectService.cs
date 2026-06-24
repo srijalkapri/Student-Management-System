@@ -20,7 +20,8 @@ namespace CRUD.Services
             var gradeSubject = new GradeSubject
             {
                 GradeId = gradeSubjectDto.GradeId,
-                SubjectId = gradeSubjectDto.SubjectId
+                SubjectId = gradeSubjectDto.SubjectId,
+                IsOptional = gradeSubjectDto.IsOptional
             };
 
             var gradeSubjectId = await _gradeSubjectRepository.CreateGradeSubject(gradeSubject);
@@ -61,10 +62,10 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetAllGradeSubjects()
+        public async Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetAllGradeSubjects(bool? isOptional = null)
         {
             var response = new ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>();
-            var gradeSubjects = await _gradeSubjectRepository.GetAllGradeSubjects();
+            var gradeSubjects = await _gradeSubjectRepository.GetAllGradeSubjects(isOptional);
             response.Data = gradeSubjects;
             response.Message = "All grade subjects retrieved successfully.";
             return response;
@@ -83,6 +84,15 @@ namespace CRUD.Services
 
             response.Data = gradeSubject;
             response.Message = "Grade subject retrieved successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsByGradeId(int gradeId, bool? isOptional = null)
+        {
+            var response = new ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>();
+            var gradeSubjects = await _gradeSubjectRepository.GetGradeSubjectsByGradeId(gradeId, isOptional);
+            response.Data = gradeSubjects;
+            response.Message = "Grade subjects by grade retrieved successfully.";
             return response;
         }
     }
