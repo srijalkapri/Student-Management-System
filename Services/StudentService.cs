@@ -8,10 +8,12 @@ namespace CRUD.Services
     public class StudentService : IStudentService
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly IGradeRepository _gradeRepository;
 
-        public StudentService(IStudentRepository studentRepository)
+        public StudentService(IStudentRepository studentRepository, IGradeRepository gradeRepository)
         {
             _studentRepository = studentRepository;
+            _gradeRepository = gradeRepository;
         }
 
         public async Task<ServiceResponse<int>> CreateStudent(StudentCreateDto studentDto)
@@ -85,6 +87,91 @@ namespace CRUD.Services
 
             response.Data = student;
             response.Message = "Student retrieved successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<StudentDetailsDto>>> GetStudentsByGradeId(int gradeId)
+        {
+            var response = new ServiceResponse<List<StudentDetailsDto>>();
+            var grade = await _gradeRepository.GetGradeById(gradeId);
+            if (grade == null)
+            {
+                response.Success = false;
+                response.Message = $"Grade with ID {gradeId} not found.";
+                return response;
+            }
+
+            var students = await _studentRepository.GetStudentsByGradeId(gradeId);
+            response.Data = students;
+            response.Message = $"Students in grade {gradeId} retrieved successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<PromoteStudentsResponseDto>> PreviewPromotion(PromoteStudentsRequestDto request)
+        {
+            var response = new ServiceResponse<PromoteStudentsResponseDto>();
+
+            // Validate grades
+            var fromGrade = await _gradeRepository.GetGradeById(request.FromGradeId);
+            if (fromGrade == null)
+            {
+                response.Success = false;
+                response.Message = $"Source grade with ID {request.FromGradeId} not found.";
+                return response;
+            }
+
+            var toGrade = await _gradeRepository.GetGradeById(request.ToGradeId);
+            if (toGrade == null)
+            {
+                response.Success = false;
+                response.Message = $"Target grade with ID {request.ToGradeId} not found.";
+                return response;
+            }
+
+            if (request.FromGradeId == request.ToGradeId)
+            {
+                response.Success = false;
+                response.Message = "Source and target grades must be different.";
+                return response;
+            }
+
+            var result = await _studentRepository.PreviewPromotion(request.FromGradeId, request.ToGradeId, request.StudentIds);
+            response.Data = result;
+            response.Message = "Promotion preview generated successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<PromoteStudentsResponseDto>> PromoteStudents(PromoteStudentsRequestDto request)
+        {
+            var response = new ServiceResponse<PromoteStudentsResponseDto>();
+
+            // Validate grades
+            var fromGrade = await _gradeRepository.GetGradeById(request.FromGradeId);
+            if (fromGrade == null)
+            {
+                response.Success = false;
+                response.Message = $"Source grade with ID {request.FromGradeId} not found.";
+                return response;
+            }
+
+            var toGrade = await _gradeRepository.GetGradeById(request.ToGradeId);
+            if (toGrade == null)
+            {
+                response.Success = false;
+                response.Message = $"Target grade with ID {request.ToGradeId} not found.";
+                return response;
+            }
+
+            if (request.FromGradeId == request.ToGradeId)
+            {
+                response.Success = false;
+                response.Message = "Source and target grades must be different.";
+                return response;
+            }
+
+            var result = await _studentRepository.PromoteStudents(request.FromGradeId, request.ToGradeId, request.StudentIds);
+            response.Data = result;
+            response.Message = $"{result.PromotedCount} students promoted successfully.";
             return response;
         }
     }

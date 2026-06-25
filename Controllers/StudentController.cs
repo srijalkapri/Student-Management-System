@@ -61,5 +61,38 @@ namespace CRUD.Controllers
             }
             return Ok(response);
         }
+
+        [HttpGet("GetStudentsByGrade")]
+        public async Task<IActionResult> GetStudentsByGrade(int gradeId)
+        {
+            var response = await _studentService.GetStudentsByGradeId(gradeId);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("PreviewPromotion")]
+        public async Task<IActionResult> PreviewPromotion([FromBody] PromoteStudentsRequestDto request)
+        {
+            var response = await _studentService.PreviewPromotion(request);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("PromoteStudents")]
+        public async Task<IActionResult> PromoteStudents([FromBody] PromoteStudentsRequestDto request)
+        {
+            var response = await _studentService.PromoteStudents(request);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }

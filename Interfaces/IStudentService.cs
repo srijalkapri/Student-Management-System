@@ -11,5 +11,8 @@ namespace CRUD.Interfaces
         Task<ServiceResponse<int>> DeleteStudent(int id);
         Task<ServiceResponse<List<StudentDetailsDto>>> GetAllStudents();
         Task<ServiceResponse<StudentDetailsDto?>> GetStudentById(int id);
+        Task<ServiceResponse<List<StudentDetailsDto>>> GetStudentsByGradeId(int gradeId);
+        Task<ServiceResponse<PromoteStudentsResponseDto>> PreviewPromotion(PromoteStudentsRequestDto request);
+        Task<ServiceResponse<PromoteStudentsResponseDto>> PromoteStudents(PromoteStudentsRequestDto request);
     }
 }

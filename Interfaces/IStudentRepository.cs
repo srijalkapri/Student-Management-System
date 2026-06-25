@@ -11,5 +11,8 @@ namespace CRUD.Interfaces
 
         Task<List<StudentDetailsDto>> GetAllStudents();
         Task<StudentDetailsDto?> GetStudentById(int id);
+        Task<List<StudentDetailsDto>> GetStudentsByGradeId(int gradeId);
+        Task<PromoteStudentsResponseDto> PreviewPromotion(int fromGradeId, int toGradeId, List<int>? studentIds);
+        Task<PromoteStudentsResponseDto> PromoteStudents(int fromGradeId, int toGradeId, List<int>? studentIds);
     }
 }

@@ -16,6 +16,7 @@ namespace CRUD.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<GradeSubject> GradeSubjects { get; set; }
         public DbSet<GradeSubjectTeacher> GradeSubjectTeachers { get; set; }
+        public DbSet<PromotionHistory> PromotionHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
