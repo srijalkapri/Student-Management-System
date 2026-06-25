@@ -48,6 +48,7 @@ builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IGradeSubjectRepository, GradeSubjectRepository>();
 builder.Services.AddScoped<IGradeSubjectTeacherRepository, GradeSubjectTeacherRepository>();
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
 
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherServices, TeacherService>();
@@ -55,6 +56,7 @@ builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IGradeSubjectService, GradeSubjectService>();
 builder.Services.AddScoped<IGradeSubjectTeacherService, GradeSubjectTeacherService>();
+builder.Services.AddScoped<IExamService, ExamService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
