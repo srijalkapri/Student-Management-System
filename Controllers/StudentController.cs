@@ -62,6 +62,17 @@ namespace CRUD.Controllers
             return Ok(response);
         }
 
+        [HttpPut("RestoreStudent")]
+        public async Task<IActionResult> RestoreStudent(int id)
+        {
+            var response = await _studentService.RestoreStudent(id);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
         [HttpGet("GetStudentsByGrade")]
         public async Task<IActionResult> GetStudentsByGrade(int gradeId)
         {

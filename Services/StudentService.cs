@@ -59,9 +59,37 @@ namespace CRUD.Services
                 response.Message = $"Student with ID {id} not found.";
                 return response;
             }
+            if (result == -1)
+            {
+                response.Success = false;
+                response.Message = $"Student with ID {id} is already deleted.";
+                return response;
+            }
 
             response.Data = result;
             response.Message = "Student deleted successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<int>> RestoreStudent(int id)
+        {
+            var response = new ServiceResponse<int>();
+            var result = await _studentRepository.RestoreStudent(id);
+            if (result == 0)
+            {
+                response.Success = false;
+                response.Message = $"Student with ID {id} not found.";
+                return response;
+            }
+            if (result == -1)
+            {
+                response.Success = false;
+                response.Message = $"Student with ID {id} is not deleted.";
+                return response;
+            }
+
+            response.Data = result;
+            response.Message = "Student restored successfully.";
             return response;
         }
 

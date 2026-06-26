@@ -122,11 +122,22 @@ namespace CRUD.Services
 
             if (existingSchedule.Status == ExamScheduleStatus.Published)
             {
+                // Allow unpublish only
+                if (request.Status == ExamScheduleStatus.Draft)
+                {
+                    existingSchedule.Status = ExamScheduleStatus.Draft;
+                    var result = await _examRepository.UpdateSchedule(existingSchedule);
+                    response.Data = result;
+                    response.Message = "Exam schedule unpublished successfully.";
+                    return response;
+                }
+
                 response.Success = false;
                 response.Message = "Cannot edit a published exam schedule. Unpublish it first.";
                 return response;
             }
 
+            // Draft schedules: allow full update
             if (request.Status == ExamScheduleStatus.Published)
             {
                 var sessions = await _context.ExamSessions.Where(es => es.ExamScheduleId == id).ToListAsync();
@@ -138,16 +149,12 @@ namespace CRUD.Services
                 }
             }
 
-            var updatedSchedule = new ExamSchedule
-            {
-                Id = id,
-                Title = request.Title,
-                AcademicYear = request.AcademicYear,
-                Status = request.Status
-            };
+            existingSchedule.Title = request.Title;
+            existingSchedule.AcademicYear = request.AcademicYear;
+            existingSchedule.Status = request.Status;
 
-            var result = await _examRepository.UpdateSchedule(updatedSchedule);
-            response.Data = result;
+            var updateResult = await _examRepository.UpdateSchedule(existingSchedule);
+            response.Data = updateResult;
             response.Message = "Exam schedule updated successfully.";
             return response;
         }

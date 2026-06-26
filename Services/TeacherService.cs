@@ -49,6 +49,15 @@ namespace CRUD.Services
         public async Task<ServiceResponse<int>> DeleteTeacher(int id)
         {
             var response = new ServiceResponse<int>();
+
+            var isClassTeacher = await _teacherRepository.IsTeacherClassTeacher(id);
+            if (isClassTeacher)
+            {
+                response.Success = false;
+                response.Message = "Cannot delete teacher assigned as class teacher. Reassign class teacher first.";
+                return response;
+            }
+
             var result = await _teacherRepository.DeleteTeacher(id);
             if (result == 0)
             {
@@ -56,9 +65,37 @@ namespace CRUD.Services
                 response.Message = $"Teacher with ID {id} not found.";
                 return response;
             }
+            if (result == -1)
+            {
+                response.Success = false;
+                response.Message = $"Teacher with ID {id} is already deleted.";
+                return response;
+            }
 
             response.Data = result;
             response.Message = "Teacher deleted successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<int>> RestoreTeacher(int id)
+        {
+            var response = new ServiceResponse<int>();
+            var result = await _teacherRepository.RestoreTeacher(id);
+            if (result == 0)
+            {
+                response.Success = false;
+                response.Message = $"Teacher with ID {id} not found.";
+                return response;
+            }
+            if (result == -1)
+            {
+                response.Success = false;
+                response.Message = $"Teacher with ID {id} is not deleted.";
+                return response;
+            }
+
+            response.Data = result;
+            response.Message = "Teacher restored successfully.";
             return response;
         }
 

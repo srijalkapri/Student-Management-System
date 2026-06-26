@@ -38,10 +38,24 @@ namespace CRUD.Repositories
 
         public async Task<int> DeleteStudent(int id)
         {
-            var student = await _context.Students.FindAsync(id);
+            var student = await _context.Students.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == id);
             if (student == null) return 0;
+            if (student.IsDeleted) return -1;
 
-            _context.Students.Remove(student);
+            student.IsDeleted = true;
+            student.DeletedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return student.Id;
+        }
+
+        public async Task<int> RestoreStudent(int id)
+        {
+            var student = await _context.Students.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == id);
+            if (student == null) return 0;
+            if (!student.IsDeleted) return -1;
+
+            student.IsDeleted = false;
+            student.DeletedAt = null;
             await _context.SaveChangesAsync();
             return student.Id;
         }

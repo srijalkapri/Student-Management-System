@@ -81,6 +81,19 @@ namespace CRUD.Controllers
             var response = await _teacherService.DeleteTeacher(id);
             if (!response.Success)
             {
+                if (response.Message.Contains("class teacher"))
+                    return BadRequest(response);
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPut("RestoreTeacher")]
+        public async Task<IActionResult> RestoreTeacher(int id)
+        {
+            var response = await _teacherService.RestoreTeacher(id);
+            if (!response.Success)
+            {
                 return NotFound(response);
             }
             return Ok(response);

@@ -136,9 +136,13 @@ namespace CRUD.Repositories
             var existing = await _context.ExamSchedules.FindAsync(examSchedule.Id);
             if (existing == null) return 0;
 
-            existing.Title = examSchedule.Title;
-            existing.AcademicYear = examSchedule.AcademicYear;
-            existing.Status = examSchedule.Status;
+            // Check if this is the same entity instance being tracked (from ExamService)
+            if (existing != examSchedule)
+            {
+                existing.Title = examSchedule.Title;
+                existing.AcademicYear = examSchedule.AcademicYear;
+                existing.Status = examSchedule.Status;
+            }
 
             await _context.SaveChangesAsync();
             return existing.Id;

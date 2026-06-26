@@ -37,12 +37,31 @@ namespace CRUD.Repositories
 
         public async Task<int> DeleteTeacher(int id)
         {
-            var teacher = await _context.Teachers.FindAsync(id);
+            var teacher = await _context.Teachers.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == id);
             if (teacher == null) return 0;
+            if (teacher.IsDeleted) return -1;
 
-            _context.Teachers.Remove(teacher);
+            teacher.IsDeleted = true;
+            teacher.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return teacher.Id;
+        }
+
+        public async Task<int> RestoreTeacher(int id)
+        {
+            var teacher = await _context.Teachers.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == id);
+            if (teacher == null) return 0;
+            if (!teacher.IsDeleted) return -1;
+
+            teacher.IsDeleted = false;
+            teacher.DeletedAt = null;
+            await _context.SaveChangesAsync();
+            return teacher.Id;
+        }
+
+        public async Task<bool> IsTeacherClassTeacher(int teacherId)
+        {
+            return await _context.Grades.AnyAsync(g => g.ClassTeacherId == teacherId);
         }
 
         public async Task<List<TeacherResponseDto>> GetAllTeachers()

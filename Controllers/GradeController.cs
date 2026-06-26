@@ -42,7 +42,7 @@ namespace CRUD.Controllers
 
         [HttpPut("UpdateGrade")]
         public async Task<IActionResult> UpdateGrade(int id, [FromBody] GradeCreateDto gradeDto)
-        {
+        { 
             var response = await _gradeService.UpdateGrade(id, gradeDto);
             if (!response.Success)
             {

@@ -22,6 +22,20 @@ namespace CRUD.Data.Configurations
             builder.Property(t => t.PhoneNo)
                 .IsRequired()
                 .HasMaxLength(20);
+
+            // Global query filter
+            builder.HasQueryFilter(t => !t.IsDeleted);
+
+            // Unique partial indexes
+            builder.HasIndex(t => t.Email)
+                .HasDatabaseName("IX_Teachers_Email_Active")
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+
+            builder.HasIndex(t => t.PhoneNo)
+                .HasDatabaseName("IX_Teachers_PhoneNo_Active")
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
         }
     }
 }

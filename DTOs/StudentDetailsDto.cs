@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿namespace CRUD.DTOs
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿namespace CRUD.DTOs
 {
     public class StudentDetailsDto
     {

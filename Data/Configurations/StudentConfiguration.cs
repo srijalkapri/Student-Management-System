@@ -27,6 +27,20 @@ namespace CRUD.Data.Configurations
                 .WithMany(g => g.Students)
                 .HasForeignKey(s => s.GradeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Global query filter
+            builder.HasQueryFilter(s => !s.IsDeleted);
+
+            // Unique partial indexes
+            builder.HasIndex(s => s.Email)
+                .HasDatabaseName("IX_Students_Email_Active")
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
+
+            builder.HasIndex(s => s.PhoneNo)
+                .HasDatabaseName("IX_Students_PhoneNo_Active")
+                .IsUnique()
+                .HasFilter("\"IsDeleted\" = false");
         }
     }
 }
