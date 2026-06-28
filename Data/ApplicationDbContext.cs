@@ -19,6 +19,7 @@ namespace CRUD.Data
         public DbSet<PromotionHistory> PromotionHistories { get; set; }
         public DbSet<ExamSchedule> ExamSchedules { get; set; }
         public DbSet<ExamSession> ExamSessions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

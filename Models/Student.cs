@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿namespace CRUD.Models
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿namespace CRUD.Models
 {
     public class Student
     {
