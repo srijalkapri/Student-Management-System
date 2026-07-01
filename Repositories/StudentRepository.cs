@@ -285,7 +285,7 @@ namespace CRUD.Repositories
             return response;
         }
 
-        public async Task<PagedResult<StudentDetailsDto>> GetStudentsPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<StudentDetailsDto>> GetStudentsPaged(PaginationParameters parameters)
         {
             var query = _context.Students
                 .OrderBy(s => s.Id)
@@ -315,7 +315,7 @@ namespace CRUD.Repositories
             return await dtoQuery.ToPagedResultAsync(parameters);
         }
 
-        public async Task<PagedResult<StudentDetailsDto>> GetStudentsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
+        public async Task<PagedResult<StudentDetailsDto>> GetStudentsByGradeIdPaged(int gradeId, PaginationParameters parameters)
         {
             var query = _context.Students
                 .Where(s => s.GradeId == gradeId)

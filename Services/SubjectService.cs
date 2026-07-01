@@ -91,11 +91,11 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<SubjectResponseDto>>> GetSubjectsPagedAsync(PaginationParameters parameters)
+        public async Task<ServiceResponse<PagedResult<SubjectResponseDto>>> GetSubjectsPaged(PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<SubjectResponseDto>>();
 
-            var pagedResult = await _subjectRepository.GetSubjectsPagedAsync(parameters);
+            var pagedResult = await _subjectRepository.GetSubjectsPaged(parameters);
 
             response.Data = pagedResult;
             response.Message = "Subjects retrieved successfully.";

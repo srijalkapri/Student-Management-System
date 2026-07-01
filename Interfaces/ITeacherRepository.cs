@@ -15,6 +15,6 @@ namespace CRUD.Interfaces
         Task<List<TeacherResponseDto>> GetAllTeachers();
         Task<TeacherResponseDto?> GetTeacherById(int id);
         Task<TeacherDetailsDto?> GetTeacherDetails(int id);
-        Task<PagedResult<TeacherResponseDto>> GetTeachersPagedAsync(PaginationParameters parameters);
+        Task<PagedResult<TeacherResponseDto>> GetTeachersPaged(PaginationParameters parameters);
     }
 }

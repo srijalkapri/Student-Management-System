@@ -66,7 +66,7 @@ namespace CRUD.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<PagedResult<SubjectResponseDto>> GetSubjectsPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<SubjectResponseDto>> GetSubjectsPaged(PaginationParameters parameters)
         {
             var query = _context.Subjects
                 .OrderBy(s => s.Id)

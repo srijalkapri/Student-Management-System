@@ -128,7 +128,7 @@ namespace CRUD.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<PagedResult<TeacherResponseDto>> GetTeachersPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<TeacherResponseDto>> GetTeachersPaged(PaginationParameters parameters)
         {
             var query = _context.Teachers
                 .OrderBy(t => t.Id)

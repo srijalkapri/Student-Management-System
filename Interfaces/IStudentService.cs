@@ -15,7 +15,7 @@ namespace CRUD.Interfaces
         Task<ServiceResponse<List<StudentDetailsDto>>> GetStudentsByGradeId(int gradeId);
         Task<ServiceResponse<PromoteStudentsResponseDto>> PreviewPromotion(PromoteStudentsRequestDto request);
         Task<ServiceResponse<PromoteStudentsResponseDto>> PromoteStudents(PromoteStudentsRequestDto request);
-        Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsPagedAsync(PaginationParameters parameters);
-        Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters);
+        Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsPaged(PaginationParameters parameters);
+        Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsByGradeIdPaged(int gradeId, PaginationParameters parameters);
     }
 }

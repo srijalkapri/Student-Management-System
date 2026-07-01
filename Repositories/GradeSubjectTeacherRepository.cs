@@ -96,7 +96,7 @@ namespace CRUD.Repositories
             return await _context.Teachers.AnyAsync(t => t.Id == teacherId);
         }
 
-        public async Task<PagedResult<GradeSubjectTeacherResponseDto>> GetPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<GradeSubjectTeacherResponseDto>> GetPaged(PaginationParameters parameters)
         {
             var query = _context.GradeSubjectTeachers
                 .OrderBy(gst => gst.Id)

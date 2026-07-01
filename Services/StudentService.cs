@@ -203,18 +203,18 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsPagedAsync(PaginationParameters parameters)
+        public async Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsPaged(PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<StudentDetailsDto>>();
 
-            var pagedResult = await _studentRepository.GetStudentsPagedAsync(parameters);
+            var pagedResult = await _studentRepository.GetStudentsPaged(parameters);
 
             response.Data = pagedResult;
             response.Message = "Students retrieved successfully.";
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
+        public async Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsByGradeIdPaged(int gradeId, PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<StudentDetailsDto>>();
 
@@ -227,7 +227,7 @@ namespace CRUD.Services
                 return response;
             }
 
-            var pagedResult = await _studentRepository.GetStudentsByGradeIdPagedAsync(gradeId, parameters);
+            var pagedResult = await _studentRepository.GetStudentsByGradeIdPaged(gradeId, parameters);
 
             response.Data = pagedResult;
             response.Message = $"Students in grade {gradeId} retrieved successfully.";
