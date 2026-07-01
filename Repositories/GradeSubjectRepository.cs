@@ -127,7 +127,7 @@ namespace CRUD.Repositories
                 .ToListAsync();
         }
 
-        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsPaged(PaginationParameters parameters)
         {
             var query = _context.GradeSubjects
                 .OrderBy(gs => gs.Id)
@@ -165,7 +165,7 @@ namespace CRUD.Repositories
             return await dtoQuery.ToPagedResultAsync(parameters);
         }
 
-        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
+        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeIdPaged(int gradeId, PaginationParameters parameters)
         {
             var query = _context.GradeSubjects
                 .Where(gs => gs.GradeId == gradeId)

@@ -18,7 +18,7 @@ namespace CRUD.Interfaces
         Task<ExamSchedule?> GetScheduleEntityById(int id);
         Task<ExamSession?> GetSessionEntityById(int id);
         Task<List<ExamSession>> GetSessionsByScheduleId(int scheduleId);
-        Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesPagedAsync(PaginationParameters parameters);
-        Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters);
+        Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesPaged(PaginationParameters parameters);
+        Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesByGradePaged(int gradeId, PaginationParameters parameters);
     }
 }

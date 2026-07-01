@@ -15,7 +15,7 @@ namespace CRUD.Interfaces
         Task<ServiceResponse<int>> AddSession(AddExamSessionRequestDto request);
         Task<ServiceResponse<int>> DeleteSession(int id);
         Task<ServiceResponse<bool>> BulkUpdateSessions(BulkUpdateSessionsRequestDto request);
-        Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesPagedAsync(PaginationParameters parameters);
-        Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters);
+        Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesPaged(PaginationParameters parameters);
+        Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesByGradePaged(int gradeId, PaginationParameters parameters);
     }
 }

@@ -93,11 +93,11 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<GradeResponseDto>>> GetGradesPagedAsync(PaginationParameters parameters)
+        public async Task<ServiceResponse<PagedResult<GradeResponseDto>>> GetGradesPaged(PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<GradeResponseDto>>();
 
-            var pagedResult = await _gradeRepository.GetGradesPagedAsync(parameters);
+            var pagedResult = await _gradeRepository.GetGradesPaged(parameters);
 
             response.Data = pagedResult;
             response.Message = "Grades retrieved successfully.";

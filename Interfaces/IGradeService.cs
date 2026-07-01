@@ -10,6 +10,6 @@ namespace CRUD.Interfaces
         Task<ServiceResponse<int>> DeleteGrade(int id);
         Task<ServiceResponse<List<GradeResponseDto>>> GetAllGrades();
         Task<ServiceResponse<GradeResponseDto?>> GetGradeById(int id);
-        Task<ServiceResponse<PagedResult<GradeResponseDto>>> GetGradesPagedAsync(PaginationParameters parameters);
+        Task<ServiceResponse<PagedResult<GradeResponseDto>>> GetGradesPaged(PaginationParameters parameters);
     }
 }

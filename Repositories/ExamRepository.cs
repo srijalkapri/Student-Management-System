@@ -214,7 +214,7 @@ namespace CRUD.Repositories
                 .ToListAsync();
         }
 
-        public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesPaged(PaginationParameters parameters)
         {
             var query = _context.ExamSchedules
                 .OrderBy(es => es.Id)
@@ -260,7 +260,7 @@ namespace CRUD.Repositories
             return await dtoQuery.ToPagedResultAsync(parameters);
         }
 
-        public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters)
+        public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesByGradePaged(int gradeId, PaginationParameters parameters)
         {
             var query = _context.ExamSchedules
                 .Where(es => es.GradeId == gradeId)

@@ -380,18 +380,18 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesPagedAsync(PaginationParameters parameters)
+        public async Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesPaged(PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<ExamScheduleResponseDto>>();
 
-            var pagedResult = await _examRepository.GetSchedulesPagedAsync(parameters);
+            var pagedResult = await _examRepository.GetSchedulesPaged(parameters);
 
             response.Data = pagedResult;
             response.Message = "Exam schedules retrieved successfully.";
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters)
+        public async Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesByGradePaged(int gradeId, PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<ExamScheduleResponseDto>>();
 
@@ -404,7 +404,7 @@ namespace CRUD.Services
                 return response;
             }
 
-            var pagedResult = await _examRepository.GetSchedulesByGradePagedAsync(gradeId, parameters);
+            var pagedResult = await _examRepository.GetSchedulesByGradePaged(gradeId, parameters);
 
             response.Data = pagedResult;
             response.Message = $"Exam schedules for grade {gradeId} retrieved successfully.";
