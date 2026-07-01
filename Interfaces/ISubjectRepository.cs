@@ -10,5 +10,6 @@ namespace CRUD.Interfaces
         Task<int> DeleteSubject(int id);
         Task<List<SubjectResponseDto>> GetAllSubjects();
         Task<SubjectResponseDto?> GetSubjectById(int id);
+        Task<PagedResult<SubjectResponseDto>> GetSubjectsPagedAsync(PaginationParameters parameters);
     }
 }

@@ -1,5 +1,6 @@
 using CRUD.Data;
 using CRUD.DTOs;
+using CRUD.Extensions;
 using CRUD.Interfaces;
 using CRUD.Models;
 using Microsoft.EntityFrameworkCore;
@@ -204,6 +205,139 @@ namespace CRUD.Repositories
         public async Task<ExamSession?> GetSessionEntityById(int id)
         {
             return await _context.ExamSessions.FindAsync(id);
+        }
+
+        public async Task<List<ExamSession>> GetSessionsByScheduleId(int scheduleId)
+        {
+            return await _context.ExamSessions
+                .Where(es => es.ExamScheduleId == scheduleId)
+                .ToListAsync();
+        }
+
+        public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesPagedAsync(PaginationParameters parameters)
+        {
+            var query = _context.ExamSchedules.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                var search = parameters.Search.Trim().ToLower();
+                var isNumericSearch = int.TryParse(parameters.Search, out var searchId);
+                query = query.Where(es =>
+                    es.Title.ToLower().Contains(search) ||
+                    (es.AcademicYear != null && es.AcademicYear.ToLower().Contains(search)) ||
+                    (isNumericSearch && es.Id == searchId));
+            }
+
+            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
+            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
+
+            query = sortBy switch
+            {
+                "title" => sortDirection == "asc"
+                    ? query.OrderBy(es => es.Title)
+                    : query.OrderByDescending(es => es.Title),
+                "academicyear" => sortDirection == "asc"
+                    ? query.OrderBy(es => es.AcademicYear)
+                    : query.OrderByDescending(es => es.AcademicYear),
+                "createdat" => sortDirection == "asc"
+                    ? query.OrderBy(es => es.CreatedAt)
+                    : query.OrderByDescending(es => es.CreatedAt),
+                _ => sortDirection == "asc"
+                    ? query.OrderBy(es => es.Id)
+                    : query.OrderByDescending(es => es.Id)
+            };
+
+            var dtoQuery = query.Select(es => new ExamScheduleResponseDto
+            {
+                Id = es.Id,
+                GradeId = es.GradeId,
+                GradeName = es.Grade.ClassName,
+                Title = es.Title,
+                AcademicYear = es.AcademicYear,
+                Status = es.Status,
+                CreatedAt = es.CreatedAt,
+                Sessions = es.ExamSessions
+                    .Select(ess => new ExamSessionResponseDto
+                    {
+                        Id = ess.Id,
+                        GradeSubjectId = ess.GradeSubjectId,
+                        SubjectId = ess.GradeSubject.SubjectId,
+                        SubjectName = ess.GradeSubject.Subject.Name,
+                        IsOptional = ess.GradeSubject.IsOptional,
+                        ExamDate = ess.ExamDate,
+                        StartTime = ess.StartTime,
+                        EndTime = ess.EndTime,
+                        InvigilatorTeacherId = ess.InvigilatorTeacherId,
+                        InvigilatorTeacherName = ess.InvigilatorTeacher != null ? ess.InvigilatorTeacher.Name : null,
+                        Notes = ess.Notes
+                    })
+                    .ToList()
+            });
+
+            return await dtoQuery.ToPagedResultAsync(parameters);
+        }
+
+        public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters)
+        {
+            var query = _context.ExamSchedules.Where(es => es.GradeId == gradeId);
+
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                var search = parameters.Search.Trim().ToLower();
+                var isNumericSearch = int.TryParse(parameters.Search, out var searchId);
+                query = query.Where(es =>
+                    es.Title.ToLower().Contains(search) ||
+                    (es.AcademicYear != null && es.AcademicYear.ToLower().Contains(search)) ||
+                    (isNumericSearch && es.Id == searchId));
+            }
+
+            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
+            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
+
+            query = sortBy switch
+            {
+                "title" => sortDirection == "asc"
+                    ? query.OrderBy(es => es.Title)
+                    : query.OrderByDescending(es => es.Title),
+                "academicyear" => sortDirection == "asc"
+                    ? query.OrderBy(es => es.AcademicYear)
+                    : query.OrderByDescending(es => es.AcademicYear),
+                "createdat" => sortDirection == "asc"
+                    ? query.OrderBy(es => es.CreatedAt)
+                    : query.OrderByDescending(es => es.CreatedAt),
+                _ => sortDirection == "asc"
+                    ? query.OrderBy(es => es.Id)
+                    : query.OrderByDescending(es => es.Id)
+            };
+
+            var dtoQuery = query.Select(es => new ExamScheduleResponseDto
+            {
+                Id = es.Id,
+                GradeId = es.GradeId,
+                GradeName = es.Grade.ClassName,
+                Title = es.Title,
+                AcademicYear = es.AcademicYear,
+                Status = es.Status,
+                CreatedAt = es.CreatedAt,
+                Sessions = es.ExamSessions
+                    .Select(ess => new ExamSessionResponseDto
+                    {
+                        Id = ess.Id,
+                        GradeSubjectId = ess.GradeSubjectId,
+                        SubjectId = ess.GradeSubject.SubjectId,
+                        SubjectName = ess.GradeSubject.Subject.Name,
+                        IsOptional = ess.GradeSubject.IsOptional,
+                        ExamDate = ess.ExamDate,
+                        StartTime = ess.StartTime,
+                        EndTime = ess.EndTime,
+                        InvigilatorTeacherId = ess.InvigilatorTeacherId,
+                        InvigilatorTeacherName = ess.InvigilatorTeacher != null ? ess.InvigilatorTeacher.Name : null,
+                        Notes = ess.Notes
+                    })
+                    .ToList()
+            });
+
+            return await dtoQuery.ToPagedResultAsync(parameters);
         }
     }
 }

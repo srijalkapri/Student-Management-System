@@ -1,5 +1,6 @@
 using CRUD.Data;
 using CRUD.DTOs;
+using CRUD.Extensions;
 using CRUD.Interfaces;
 using CRUD.Models;
 using Microsoft.EntityFrameworkCore;
@@ -93,6 +94,56 @@ namespace CRUD.Repositories
         public async Task<bool> TeacherExists(int teacherId)
         {
             return await _context.Teachers.AnyAsync(t => t.Id == teacherId);
+        }
+
+        public async Task<PagedResult<GradeSubjectTeacherResponseDto>> GetPagedAsync(PaginationParameters parameters)
+        {
+            var query = _context.GradeSubjectTeachers.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                var search = parameters.Search.Trim().ToLower();
+                var isNumericSearch = int.TryParse(parameters.Search, out var searchId);
+                query = query.Where(gst =>
+                    gst.Teacher.Name.ToLower().Contains(search) ||
+                    gst.GradeSubject.Subject.Name.ToLower().Contains(search) ||
+                    gst.GradeSubject.Grade.ClassName.ToLower().Contains(search) ||
+                    (isNumericSearch && gst.Id == searchId));
+            }
+
+            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
+            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
+
+            query = sortBy switch
+            {
+                "teachername" => sortDirection == "asc"
+                    ? query.OrderBy(gst => gst.Teacher.Name)
+                    : query.OrderByDescending(gst => gst.Teacher.Name),
+                "subjectname" => sortDirection == "asc"
+                    ? query.OrderBy(gst => gst.GradeSubject.Subject.Name)
+                    : query.OrderByDescending(gst => gst.GradeSubject.Subject.Name),
+                "gradename" => sortDirection == "asc"
+                    ? query.OrderBy(gst => gst.GradeSubject.Grade.ClassName)
+                    : query.OrderByDescending(gst => gst.GradeSubject.Grade.ClassName),
+                _ => sortDirection == "asc"
+                    ? query.OrderBy(gst => gst.Id)
+                    : query.OrderByDescending(gst => gst.Id)
+            };
+
+            var dtoQuery = query.Select(gst => new GradeSubjectTeacherResponseDto
+            {
+                Id = gst.Id,
+                GradeSubjectId = gst.GradeSubjectId,
+                GradeId = gst.GradeSubject.GradeId,
+                GradeName = gst.GradeSubject.Grade.ClassName,
+                SubjectId = gst.GradeSubject.SubjectId,
+                SubjectName = gst.GradeSubject.Subject.Name,
+                IsOptional = gst.GradeSubject.IsOptional,
+                TeacherId = gst.TeacherId,
+                TeacherName = gst.Teacher.Name
+            });
+
+            return await dtoQuery.ToPagedResultAsync(parameters);
         }
     }
 }

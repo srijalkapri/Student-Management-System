@@ -29,6 +29,13 @@ namespace CRUD.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetGradesPaged")]
+        public async Task<IActionResult> GetGradesPaged([FromQuery] PaginationParameters parameters)
+        {
+            var response = await _gradeService.GetGradesPagedAsync(parameters);
+            return Ok(response);
+        }
+
         [HttpGet("GetGradeById")]
         public async Task<IActionResult> GetGradeById(int id)
         {

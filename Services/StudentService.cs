@@ -202,5 +202,36 @@ namespace CRUD.Services
             response.Message = $"{result.PromotedCount} students promoted successfully.";
             return response;
         }
+
+        public async Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsPagedAsync(PaginationParameters parameters)
+        {
+            var response = new ServiceResponse<PagedResult<StudentDetailsDto>>();
+
+            var pagedResult = await _studentRepository.GetStudentsPagedAsync(parameters);
+
+            response.Data = pagedResult;
+            response.Message = "Students retrieved successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
+        {
+            var response = new ServiceResponse<PagedResult<StudentDetailsDto>>();
+
+            // Check if grade exists
+            var grade = await _gradeRepository.GetGradeById(gradeId);
+            if (grade == null)
+            {
+                response.Success = false;
+                response.Message = $"Grade with ID {gradeId} not found.";
+                return response;
+            }
+
+            var pagedResult = await _studentRepository.GetStudentsByGradeIdPagedAsync(gradeId, parameters);
+
+            response.Data = pagedResult;
+            response.Message = $"Students in grade {gradeId} retrieved successfully.";
+            return response;
+        }
     }
 }

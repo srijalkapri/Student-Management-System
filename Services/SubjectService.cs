@@ -90,5 +90,16 @@ namespace CRUD.Services
             response.Message = "Subject retrieved successfully.";
             return response;
         }
+
+        public async Task<ServiceResponse<PagedResult<SubjectResponseDto>>> GetSubjectsPagedAsync(PaginationParameters parameters)
+        {
+            var response = new ServiceResponse<PagedResult<SubjectResponseDto>>();
+
+            var pagedResult = await _subjectRepository.GetSubjectsPagedAsync(parameters);
+
+            response.Data = pagedResult;
+            response.Message = "Subjects retrieved successfully.";
+            return response;
+        }
     }
 }

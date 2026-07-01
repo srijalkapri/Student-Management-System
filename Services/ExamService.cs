@@ -1,9 +1,7 @@
-using CRUD.Data;
 using CRUD.DTOs;
 using CRUD.Interfaces;
 using CRUD.Models;
 using CRUD.Responses;
-using Microsoft.EntityFrameworkCore;
 
 namespace CRUD.Services
 {
@@ -12,18 +10,18 @@ namespace CRUD.Services
         private readonly IExamRepository _examRepository;
         private readonly IGradeRepository _gradeRepository;
         private readonly IGradeSubjectRepository _gradeSubjectRepository;
-        private readonly ApplicationDbContext _context;
+        private readonly ITeacherRepository _teacherRepository;
 
         public ExamService(
             IExamRepository examRepository,
             IGradeRepository gradeRepository,
             IGradeSubjectRepository gradeSubjectRepository,
-            ApplicationDbContext context)
+            ITeacherRepository teacherRepository)
         {
             _examRepository = examRepository;
             _gradeRepository = gradeRepository;
             _gradeSubjectRepository = gradeSubjectRepository;
-            _context = context;
+            _teacherRepository = teacherRepository;
         }
 
         public async Task<ServiceResponse<List<ExamScheduleResponseDto>>> GetAllSchedules()
@@ -92,9 +90,7 @@ namespace CRUD.Services
             List<ExamSession>? sessions = null;
             if (request.AutoGenerateSessions)
             {
-                var gradeSubjects = await _context.GradeSubjects
-                    .Where(gs => gs.GradeId == request.GradeId)
-                    .ToListAsync();
+                var gradeSubjects = await _gradeSubjectRepository.GetGradeSubjectsByGradeIdEntities(request.GradeId);
 
                 sessions = gradeSubjects.Select(gs => new ExamSession
                 {
@@ -140,7 +136,7 @@ namespace CRUD.Services
             // Draft schedules: allow full update
             if (request.Status == ExamScheduleStatus.Published)
             {
-                var sessions = await _context.ExamSessions.Where(es => es.ExamScheduleId == id).ToListAsync();
+                var sessions = await _examRepository.GetSessionsByScheduleId(id);
                 if (sessions.Any(es => !es.ExamDate.HasValue))
                 {
                     response.Success = false;
@@ -213,7 +209,7 @@ namespace CRUD.Services
 
             if (request.InvigilatorTeacherId.HasValue)
             {
-                var teacherExists = await _context.Teachers.AnyAsync(t => t.Id == request.InvigilatorTeacherId.Value);
+                var teacherExists = await _teacherRepository.TeacherExists(request.InvigilatorTeacherId.Value);
                 if (!teacherExists)
                 {
                     response.Success = false;
@@ -257,9 +253,8 @@ namespace CRUD.Services
                 return response;
             }
 
-            var gradeSubject = await _context.GradeSubjects
-                .FirstOrDefaultAsync(gs => gs.Id == request.GradeSubjectId && gs.GradeId == schedule.GradeId);
-            if (gradeSubject == null)
+            var gradeSubjectExists = await _gradeSubjectRepository.GradeSubjectExistsForGrade(request.GradeSubjectId, schedule.GradeId);
+            if (!gradeSubjectExists)
             {
                 response.Success = false;
                 response.Message = $"GradeSubject with ID {request.GradeSubjectId} not found for this grade.";
@@ -268,7 +263,7 @@ namespace CRUD.Services
 
             if (request.InvigilatorTeacherId.HasValue)
             {
-                var teacherExists = await _context.Teachers.AnyAsync(t => t.Id == request.InvigilatorTeacherId.Value);
+                var teacherExists = await _teacherRepository.TeacherExists(request.InvigilatorTeacherId.Value);
                 if (!teacherExists)
                 {
                     response.Success = false;
@@ -346,9 +341,8 @@ namespace CRUD.Services
                 return response;
             }
 
-            var existingSessions = await _context.ExamSessions
-                .Where(es => es.ExamScheduleId == request.ExamScheduleId)
-                .ToDictionaryAsync(es => es.Id);
+            var existingSessions = (await _examRepository.GetSessionsByScheduleId(request.ExamScheduleId))
+                .ToDictionary(es => es.Id);
 
             var sessionsToUpdate = new List<ExamSession>();
             foreach (var dto in request.Sessions)
@@ -362,7 +356,7 @@ namespace CRUD.Services
 
                 if (dto.InvigilatorTeacherId.HasValue)
                 {
-                    var teacherExists = await _context.Teachers.AnyAsync(t => t.Id == dto.InvigilatorTeacherId.Value);
+                    var teacherExists = await _teacherRepository.TeacherExists(dto.InvigilatorTeacherId.Value);
                     if (!teacherExists)
                     {
                         response.Success = false;
@@ -383,6 +377,37 @@ namespace CRUD.Services
             await _examRepository.BulkUpdateSessions(sessionsToUpdate);
             response.Data = true;
             response.Message = "Bulk update of exam sessions completed successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesPagedAsync(PaginationParameters parameters)
+        {
+            var response = new ServiceResponse<PagedResult<ExamScheduleResponseDto>>();
+
+            var pagedResult = await _examRepository.GetSchedulesPagedAsync(parameters);
+
+            response.Data = pagedResult;
+            response.Message = "Exam schedules retrieved successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<PagedResult<ExamScheduleResponseDto>>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters)
+        {
+            var response = new ServiceResponse<PagedResult<ExamScheduleResponseDto>>();
+
+            // Check if grade exists
+            var grade = await _gradeRepository.GetGradeById(gradeId);
+            if (grade == null)
+            {
+                response.Success = false;
+                response.Message = $"Grade with ID {gradeId} not found.";
+                return response;
+            }
+
+            var pagedResult = await _examRepository.GetSchedulesByGradePagedAsync(gradeId, parameters);
+
+            response.Data = pagedResult;
+            response.Message = $"Exam schedules for grade {gradeId} retrieved successfully.";
             return response;
         }
     }

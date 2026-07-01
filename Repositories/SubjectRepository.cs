@@ -1,5 +1,6 @@
 using CRUD.Data;
 using CRUD.DTOs;
+using CRUD.Extensions;
 using CRUD.Interfaces;
 using CRUD.Models;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,41 @@ namespace CRUD.Repositories
                     Name = s.Name
                 })
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<PagedResult<SubjectResponseDto>> GetSubjectsPagedAsync(PaginationParameters parameters)
+        {
+            var query = _context.Subjects.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                var search = parameters.Search.Trim().ToLower();
+                var isNumericSearch = int.TryParse(parameters.Search, out var searchId);
+                query = query.Where(s =>
+                    s.Name.ToLower().Contains(search) ||
+                    (isNumericSearch && s.Id == searchId));
+            }
+
+            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
+            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
+
+            query = sortBy switch
+            {
+                "name" => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Name)
+                    : query.OrderByDescending(s => s.Name),
+                _ => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Id)
+                    : query.OrderByDescending(s => s.Id)
+            };
+
+            var dtoQuery = query.Select(s => new SubjectResponseDto
+            {
+                Id = s.Id,
+                Name = s.Name
+            });
+
+            return await dtoQuery.ToPagedResultAsync(parameters);
         }
     }
 }

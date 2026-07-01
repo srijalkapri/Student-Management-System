@@ -12,5 +12,6 @@ namespace CRUD.Interfaces
         Task<ServiceResponse<List<TeacherResponseDto>>> GetAllTeachers();
         Task<ServiceResponse<TeacherResponseDto?>> GetTeacherById(int id);
         Task<ServiceResponse<TeacherDetailsDto?>> GetTeacherDetails(int id);
+        Task<ServiceResponse<PagedResult<TeacherResponseDto>>> GetTeachersPagedAsync(PaginationParameters parameters);
     }
 }

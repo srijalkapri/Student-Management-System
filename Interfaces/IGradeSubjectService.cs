@@ -11,5 +11,7 @@ namespace CRUD.Interfaces
         Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetAllGradeSubjects(bool? isOptional = null);
         Task<ServiceResponse<GradeSubjectWithTeachersResponseDto?>> GetGradeSubjectById(int id);
         Task<ServiceResponse<List<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsByGradeId(int gradeId, bool? isOptional = null);
+        Task<ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsPagedAsync(PaginationParameters parameters, bool? isOptional = null);
+        Task<ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters, bool? isOptional = null);
     }
 }

@@ -1,5 +1,6 @@
 using CRUD.Data;
 using CRUD.DTOs;
+using CRUD.Extensions;
 using CRUD.Interfaces;
 using CRUD.Models;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +65,11 @@ namespace CRUD.Repositories
             return await _context.Grades.AnyAsync(g => g.ClassTeacherId == teacherId);
         }
 
+        public async Task<bool> TeacherExists(int teacherId)
+        {
+            return await _context.Teachers.AnyAsync(t => t.Id == teacherId);
+        }
+
         public async Task<List<TeacherResponseDto>> GetAllTeachers()
         {
             return await _context.Teachers
@@ -120,6 +126,48 @@ namespace CRUD.Repositories
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<PagedResult<TeacherResponseDto>> GetTeachersPagedAsync(PaginationParameters parameters)
+        {
+            var query = _context.Teachers.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                var search = parameters.Search.Trim().ToLower();
+                var isNumericSearch = int.TryParse(parameters.Search, out var searchId);
+                query = query.Where(t =>
+                    t.Name.ToLower().Contains(search) ||
+                    t.Email.ToLower().Contains(search) ||
+                    (t.PhoneNo != null && t.PhoneNo.ToLower().Contains(search)) ||
+                    (isNumericSearch && t.Id == searchId));
+            }
+
+            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
+            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
+
+            query = sortBy switch
+            {
+                "name" => sortDirection == "asc"
+                    ? query.OrderBy(t => t.Name)
+                    : query.OrderByDescending(t => t.Name),
+                "email" => sortDirection == "asc"
+                    ? query.OrderBy(t => t.Email)
+                    : query.OrderByDescending(t => t.Email),
+                _ => sortDirection == "asc"
+                    ? query.OrderBy(t => t.Id)
+                    : query.OrderByDescending(t => t.Id)
+            };
+
+            var dtoQuery = query.Select(t => new TeacherResponseDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Email = t.Email,
+                PhoneNo = t.PhoneNo
+            });
+
+            return await dtoQuery.ToPagedResultAsync(parameters);
         }
     }
 }

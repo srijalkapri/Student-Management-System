@@ -17,5 +17,8 @@ namespace CRUD.Interfaces
         Task BulkUpdateSessions(List<ExamSession> sessions);
         Task<ExamSchedule?> GetScheduleEntityById(int id);
         Task<ExamSession?> GetSessionEntityById(int id);
+        Task<List<ExamSession>> GetSessionsByScheduleId(int scheduleId);
+        Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesPagedAsync(PaginationParameters parameters);
+        Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters);
     }
 }

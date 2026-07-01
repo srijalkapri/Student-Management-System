@@ -33,6 +33,13 @@ namespace CRUD.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetGradeSubjectTeachersPaged")]
+        public async Task<IActionResult> GetGradeSubjectTeachersPaged([FromQuery] PaginationParameters parameters)
+        {
+            var response = await _service.GetGradeSubjectTeachersPagedAsync(parameters);
+            return Ok(response);
+        }
+
         [HttpGet("GetGradeSubjectTeacherById")]
         public async Task<IActionResult> GetGradeSubjectTeacherById(int id)
         {

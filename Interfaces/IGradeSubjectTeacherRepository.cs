@@ -11,5 +11,6 @@ namespace CRUD.Interfaces
         Task<int> Delete(int id);
         Task<bool> GradeSubjectExists(int gradeSubjectId);
         Task<bool> TeacherExists(int teacherId);
+        Task<PagedResult<GradeSubjectTeacherResponseDto>> GetPagedAsync(PaginationParameters parameters);
     }
 }

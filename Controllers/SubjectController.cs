@@ -29,6 +29,13 @@ namespace CRUD.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetSubjectsPaged")]
+        public async Task<IActionResult> GetSubjectsPaged([FromQuery] PaginationParameters parameters)
+        {
+            var response = await _subjectService.GetSubjectsPagedAsync(parameters);
+            return Ok(response);
+        }
+
         [HttpGet("GetSubjectById")]
         public async Task<IActionResult> GetSubjectById(int id)
         {

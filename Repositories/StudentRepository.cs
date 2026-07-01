@@ -1,5 +1,6 @@
 using CRUD.Data;
 using CRUD.DTOs;
+using CRUD.Extensions;
 using CRUD.Interfaces;
 using CRUD.Models;
 using Microsoft.EntityFrameworkCore;
@@ -282,6 +283,94 @@ namespace CRUD.Repositories
             }
 
             return response;
+        }
+
+        public async Task<PagedResult<StudentDetailsDto>> GetStudentsPagedAsync(PaginationParameters parameters)
+        {
+            var query = _context.Students.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                var search = parameters.Search.Trim().ToLower();
+                var isNumericSearch = int.TryParse(parameters.Search, out var searchId);
+                query = query.Where(s =>
+                    s.Name.ToLower().Contains(search) ||
+                    s.Email.ToLower().Contains(search) ||
+                    (s.PhoneNo != null && s.PhoneNo.ToLower().Contains(search)) ||
+                    (isNumericSearch && s.Id == searchId));
+            }
+
+            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
+            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
+
+            query = sortBy switch
+            {
+                "name" => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Name)
+                    : query.OrderByDescending(s => s.Name),
+                "email" => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Email)
+                    : query.OrderByDescending(s => s.Email),
+                _ => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Id)
+                    : query.OrderByDescending(s => s.Id)
+            };
+
+            var dtoQuery = query.Select(s => new StudentDetailsDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Email = s.Email,
+                PhoneNo = s.PhoneNo,
+                GradeId = s.GradeId,
+                GradeName = s.Grade.ClassName
+            });
+
+            return await dtoQuery.ToPagedResultAsync(parameters);
+        }
+
+        public async Task<PagedResult<StudentDetailsDto>> GetStudentsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
+        {
+            var query = _context.Students.Where(s => s.GradeId == gradeId);
+
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                var search = parameters.Search.Trim().ToLower();
+                var isNumericSearch = int.TryParse(parameters.Search, out var searchId);
+                query = query.Where(s =>
+                    s.Name.ToLower().Contains(search) ||
+                    s.Email.ToLower().Contains(search) ||
+                    (s.PhoneNo != null && s.PhoneNo.ToLower().Contains(search)) ||
+                    (isNumericSearch && s.Id == searchId));
+            }
+
+            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
+            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
+
+            query = sortBy switch
+            {
+                "name" => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Name)
+                    : query.OrderByDescending(s => s.Name),
+                "email" => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Email)
+                    : query.OrderByDescending(s => s.Email),
+                _ => sortDirection == "asc"
+                    ? query.OrderBy(s => s.Id)
+                    : query.OrderByDescending(s => s.Id)
+            };
+
+            var dtoQuery = query.Select(s => new StudentDetailsDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Email = s.Email,
+                PhoneNo = s.PhoneNo,
+                GradeId = s.GradeId,
+                GradeName = s.Grade.ClassName
+            });
+
+            return await dtoQuery.ToPagedResultAsync(parameters);
         }
     }
 }

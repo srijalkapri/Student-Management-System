@@ -139,5 +139,16 @@ namespace CRUD.Services
             response.Message = "Teacher details retrieved successfully.";
             return response;
         }
+
+        public async Task<ServiceResponse<PagedResult<TeacherResponseDto>>> GetTeachersPagedAsync(PaginationParameters parameters)
+        {
+            var response = new ServiceResponse<PagedResult<TeacherResponseDto>>();
+
+            var pagedResult = await _teacherRepository.GetTeachersPagedAsync(parameters);
+
+            response.Data = pagedResult;
+            response.Message = "Teachers retrieved successfully.";
+            return response;
+        }
     }
 }

@@ -11,5 +11,10 @@ namespace CRUD.Interfaces
         Task<List<GradeSubjectWithTeachersResponseDto>> GetAllGradeSubjects(bool? isOptional = null);
         Task<GradeSubjectWithTeachersResponseDto?> GetGradeSubjectById(int id);
         Task<List<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeId(int gradeId, bool? isOptional = null);
+        Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsPagedAsync(PaginationParameters parameters, bool? isOptional = null);
+        Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters, bool? isOptional = null);
+        Task<List<GradeSubject>> GetGradeSubjectsByGradeIdEntities(int gradeId);
+        Task<GradeSubject?> GetGradeSubjectEntityById(int id);
+        Task<bool> GradeSubjectExistsForGrade(int gradeSubjectId, int gradeId);
     }
 }

@@ -10,9 +10,11 @@ namespace CRUD.Interfaces
         Task<int> DeleteTeacher(int id);
         Task<int> RestoreTeacher(int id);
         Task<bool> IsTeacherClassTeacher(int teacherId);
+        Task<bool> TeacherExists(int teacherId);
 
         Task<List<TeacherResponseDto>> GetAllTeachers();
         Task<TeacherResponseDto?> GetTeacherById(int id);
         Task<TeacherDetailsDto?> GetTeacherDetails(int id);
+        Task<PagedResult<TeacherResponseDto>> GetTeachersPagedAsync(PaginationParameters parameters);
     }
 }
