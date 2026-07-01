@@ -98,18 +98,18 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsPagedAsync(PaginationParameters parameters, bool? isOptional = null)
+        public async Task<ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsPagedAsync(PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>();
 
-            var pagedResult = await _gradeSubjectRepository.GetGradeSubjectsPagedAsync(parameters, isOptional);
+            var pagedResult = await _gradeSubjectRepository.GetGradeSubjectsPagedAsync(parameters);
 
             response.Data = pagedResult;
             response.Message = "Grade subjects retrieved successfully.";
             return response;
         }
 
-        public async Task<ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters, bool? isOptional = null)
+        public async Task<ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>> GetGradeSubjectsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
         {
             var response = new ServiceResponse<PagedResult<GradeSubjectWithTeachersResponseDto>>();
 
@@ -121,7 +121,7 @@ namespace CRUD.Services
                 return response;
             }
 
-            var pagedResult = await _gradeSubjectRepository.GetGradeSubjectsByGradeIdPagedAsync(gradeId, parameters, isOptional);
+            var pagedResult = await _gradeSubjectRepository.GetGradeSubjectsByGradeIdPagedAsync(gradeId, parameters);
 
             response.Data = pagedResult;
             response.Message = $"Grade subjects for grade {gradeId} retrieved successfully.";

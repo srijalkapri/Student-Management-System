@@ -287,7 +287,9 @@ namespace CRUD.Repositories
 
         public async Task<PagedResult<StudentDetailsDto>> GetStudentsPagedAsync(PaginationParameters parameters)
         {
-            var query = _context.Students.AsQueryable();
+            var query = _context.Students
+                .OrderBy(s => s.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -299,22 +301,6 @@ namespace CRUD.Repositories
                     (s.PhoneNo != null && s.PhoneNo.ToLower().Contains(search)) ||
                     (isNumericSearch && s.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "name" => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Name)
-                    : query.OrderByDescending(s => s.Name),
-                "email" => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Email)
-                    : query.OrderByDescending(s => s.Email),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Id)
-                    : query.OrderByDescending(s => s.Id)
-            };
 
             var dtoQuery = query.Select(s => new StudentDetailsDto
             {
@@ -331,7 +317,10 @@ namespace CRUD.Repositories
 
         public async Task<PagedResult<StudentDetailsDto>> GetStudentsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
         {
-            var query = _context.Students.Where(s => s.GradeId == gradeId);
+            var query = _context.Students
+                .Where(s => s.GradeId == gradeId)
+                .OrderBy(s => s.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -343,22 +332,6 @@ namespace CRUD.Repositories
                     (s.PhoneNo != null && s.PhoneNo.ToLower().Contains(search)) ||
                     (isNumericSearch && s.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "name" => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Name)
-                    : query.OrderByDescending(s => s.Name),
-                "email" => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Email)
-                    : query.OrderByDescending(s => s.Email),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Id)
-                    : query.OrderByDescending(s => s.Id)
-            };
 
             var dtoQuery = query.Select(s => new StudentDetailsDto
             {

@@ -130,7 +130,9 @@ namespace CRUD.Repositories
 
         public async Task<PagedResult<TeacherResponseDto>> GetTeachersPagedAsync(PaginationParameters parameters)
         {
-            var query = _context.Teachers.AsQueryable();
+            var query = _context.Teachers
+                .OrderBy(t => t.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -142,22 +144,6 @@ namespace CRUD.Repositories
                     (t.PhoneNo != null && t.PhoneNo.ToLower().Contains(search)) ||
                     (isNumericSearch && t.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "name" => sortDirection == "asc"
-                    ? query.OrderBy(t => t.Name)
-                    : query.OrderByDescending(t => t.Name),
-                "email" => sortDirection == "asc"
-                    ? query.OrderBy(t => t.Email)
-                    : query.OrderByDescending(t => t.Email),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(t => t.Id)
-                    : query.OrderByDescending(t => t.Id)
-            };
 
             var dtoQuery = query.Select(t => new TeacherResponseDto
             {

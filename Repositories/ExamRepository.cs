@@ -216,7 +216,9 @@ namespace CRUD.Repositories
 
         public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesPagedAsync(PaginationParameters parameters)
         {
-            var query = _context.ExamSchedules.AsQueryable();
+            var query = _context.ExamSchedules
+                .OrderBy(es => es.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -227,25 +229,6 @@ namespace CRUD.Repositories
                     (es.AcademicYear != null && es.AcademicYear.ToLower().Contains(search)) ||
                     (isNumericSearch && es.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "title" => sortDirection == "asc"
-                    ? query.OrderBy(es => es.Title)
-                    : query.OrderByDescending(es => es.Title),
-                "academicyear" => sortDirection == "asc"
-                    ? query.OrderBy(es => es.AcademicYear)
-                    : query.OrderByDescending(es => es.AcademicYear),
-                "createdat" => sortDirection == "asc"
-                    ? query.OrderBy(es => es.CreatedAt)
-                    : query.OrderByDescending(es => es.CreatedAt),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(es => es.Id)
-                    : query.OrderByDescending(es => es.Id)
-            };
 
             var dtoQuery = query.Select(es => new ExamScheduleResponseDto
             {
@@ -279,7 +262,10 @@ namespace CRUD.Repositories
 
         public async Task<PagedResult<ExamScheduleResponseDto>> GetSchedulesByGradePagedAsync(int gradeId, PaginationParameters parameters)
         {
-            var query = _context.ExamSchedules.Where(es => es.GradeId == gradeId);
+            var query = _context.ExamSchedules
+                .Where(es => es.GradeId == gradeId)
+                .OrderBy(es => es.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -290,25 +276,6 @@ namespace CRUD.Repositories
                     (es.AcademicYear != null && es.AcademicYear.ToLower().Contains(search)) ||
                     (isNumericSearch && es.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "title" => sortDirection == "asc"
-                    ? query.OrderBy(es => es.Title)
-                    : query.OrderByDescending(es => es.Title),
-                "academicyear" => sortDirection == "asc"
-                    ? query.OrderBy(es => es.AcademicYear)
-                    : query.OrderByDescending(es => es.AcademicYear),
-                "createdat" => sortDirection == "asc"
-                    ? query.OrderBy(es => es.CreatedAt)
-                    : query.OrderByDescending(es => es.CreatedAt),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(es => es.Id)
-                    : query.OrderByDescending(es => es.Id)
-            };
 
             var dtoQuery = query.Select(es => new ExamScheduleResponseDto
             {

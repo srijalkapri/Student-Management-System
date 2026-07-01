@@ -68,7 +68,9 @@ namespace CRUD.Repositories
 
         public async Task<PagedResult<SubjectResponseDto>> GetSubjectsPagedAsync(PaginationParameters parameters)
         {
-            var query = _context.Subjects.AsQueryable();
+            var query = _context.Subjects
+                .OrderBy(s => s.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -78,19 +80,6 @@ namespace CRUD.Repositories
                     s.Name.ToLower().Contains(search) ||
                     (isNumericSearch && s.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "name" => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Name)
-                    : query.OrderByDescending(s => s.Name),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(s => s.Id)
-                    : query.OrderByDescending(s => s.Id)
-            };
 
             var dtoQuery = query.Select(s => new SubjectResponseDto
             {

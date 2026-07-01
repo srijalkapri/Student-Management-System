@@ -26,14 +26,11 @@ public static class QueryableExtensions
 
         return new PagedResult<T>
         {
-            Data = pagedData,
-            Metadata = new PaginationMetadata
-            {
-                CurrentPage = parameters.PageNumber,
-                PageSize = parameters.PageSize,
-                TotalCount = totalCount,
-                TotalPages = totalPages
-            }
+            Items = pagedData,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
         };
     }
 }

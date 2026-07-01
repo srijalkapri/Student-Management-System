@@ -88,7 +88,9 @@ namespace CRUD.Repositories
 
         public async Task<PagedResult<GradeResponseDto>> GetGradesPagedAsync(PaginationParameters parameters)
         {
-            var query = _context.Grades.AsQueryable();
+            var query = _context.Grades
+                .OrderBy(g => g.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -98,19 +100,6 @@ namespace CRUD.Repositories
                     g.ClassName.ToLower().Contains(search) ||
                     (isNumericSearch && g.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "classname" => sortDirection == "asc"
-                    ? query.OrderBy(g => g.ClassName)
-                    : query.OrderByDescending(g => g.ClassName),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(g => g.Id)
-                    : query.OrderByDescending(g => g.Id)
-            };
 
             var dtoQuery = query.Select(g => new GradeResponseDto
             {

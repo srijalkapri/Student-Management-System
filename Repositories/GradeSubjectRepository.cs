@@ -127,14 +127,11 @@ namespace CRUD.Repositories
                 .ToListAsync();
         }
 
-        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsPagedAsync(PaginationParameters parameters, bool? isOptional = null)
+        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsPagedAsync(PaginationParameters parameters)
         {
-            var query = _context.GradeSubjects.AsQueryable();
-
-            if (isOptional.HasValue)
-            {
-                query = query.Where(gs => gs.IsOptional == isOptional.Value);
-            }
+            var query = _context.GradeSubjects
+                .OrderBy(gs => gs.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -145,22 +142,6 @@ namespace CRUD.Repositories
                     gs.Grade.ClassName.ToLower().Contains(search) ||
                     (isNumericSearch && gs.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "subjectname" => sortDirection == "asc"
-                    ? query.OrderBy(gs => gs.Subject.Name)
-                    : query.OrderByDescending(gs => gs.Subject.Name),
-                "gradename" => sortDirection == "asc"
-                    ? query.OrderBy(gs => gs.Grade.ClassName)
-                    : query.OrderByDescending(gs => gs.Grade.ClassName),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(gs => gs.Id)
-                    : query.OrderByDescending(gs => gs.Id)
-            };
 
             var dtoQuery = query.Select(gs => new GradeSubjectWithTeachersResponseDto
             {
@@ -184,14 +165,12 @@ namespace CRUD.Repositories
             return await dtoQuery.ToPagedResultAsync(parameters);
         }
 
-        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters, bool? isOptional = null)
+        public async Task<PagedResult<GradeSubjectWithTeachersResponseDto>> GetGradeSubjectsByGradeIdPagedAsync(int gradeId, PaginationParameters parameters)
         {
-            var query = _context.GradeSubjects.Where(gs => gs.GradeId == gradeId);
-
-            if (isOptional.HasValue)
-            {
-                query = query.Where(gs => gs.IsOptional == isOptional.Value);
-            }
+            var query = _context.GradeSubjects
+                .Where(gs => gs.GradeId == gradeId)
+                .OrderBy(gs => gs.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
@@ -202,22 +181,6 @@ namespace CRUD.Repositories
                     gs.Grade.ClassName.ToLower().Contains(search) ||
                     (isNumericSearch && gs.Id == searchId));
             }
-
-            var sortBy = string.IsNullOrWhiteSpace(parameters.SortBy) ? "id" : parameters.SortBy.ToLower();
-            var sortDirection = string.IsNullOrWhiteSpace(parameters.SortDirection) ? "asc" : parameters.SortDirection.ToLower();
-
-            query = sortBy switch
-            {
-                "subjectname" => sortDirection == "asc"
-                    ? query.OrderBy(gs => gs.Subject.Name)
-                    : query.OrderByDescending(gs => gs.Subject.Name),
-                "gradename" => sortDirection == "asc"
-                    ? query.OrderBy(gs => gs.Grade.ClassName)
-                    : query.OrderByDescending(gs => gs.Grade.ClassName),
-                _ => sortDirection == "asc"
-                    ? query.OrderBy(gs => gs.Id)
-                    : query.OrderByDescending(gs => gs.Id)
-            };
 
             var dtoQuery = query.Select(gs => new GradeSubjectWithTeachersResponseDto
             {
