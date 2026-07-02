@@ -21,11 +21,11 @@ namespace CRUD.Services
             _configuration = configuration;
         }
 
-        public async Task<ServiceResponse<LoginResponseDto>> LoginAsync(LoginRequestDto loginRequest)
+        public async Task<ServiceResponse<LoginResponseDto>> Login(LoginRequestDto loginRequest)
         {
             var response = new ServiceResponse<LoginResponseDto>();
 
-            var user = await _userRepository.GetByUsernameAsync(loginRequest.Username);
+            var user = await _userRepository.GetByUsername(loginRequest.Username);
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
             {
                 response.Success = false;
@@ -62,10 +62,10 @@ namespace CRUD.Services
             return response;
         }
 
-        public async Task<ServiceResponse<UserDto>> GetCurrentUserAsync(int userId)
+        public async Task<ServiceResponse<UserDto>> GetCurrentUser(int userId)
         {
             var response = new ServiceResponse<UserDto>();
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetById(userId);
 
             if (user == null)
             {

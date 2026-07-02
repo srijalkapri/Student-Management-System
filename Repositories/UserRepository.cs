@@ -14,19 +14,19 @@ namespace CRUD.Repositories
             _context = context;
         }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public async Task<User?> GetByUsername(string username)
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<User?> GetById(int id)
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<int> CreateAsync(User user)
+        public async Task<int> Create(User user)
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

@@ -22,7 +22,7 @@ namespace CRUD.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
         {
-            var response = await _authService.LoginAsync(loginRequest);
+            var response = await _authService.Login(loginRequest);
             if (!response.Success)
             {
                 return Unauthorized(response);
@@ -40,7 +40,7 @@ namespace CRUD.Controllers
             }
 
             var userId = int.Parse(userIdClaim.Value);
-            var response = await _authService.GetCurrentUserAsync(userId);
+            var response = await _authService.GetCurrentUser(userId);
             if (!response.Success)
             {
                 return NotFound(response);

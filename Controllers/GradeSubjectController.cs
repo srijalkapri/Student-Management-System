@@ -32,7 +32,7 @@ namespace CRUD.Controllers
         [HttpGet("GetGradeSubjectsPaged")]
         public async Task<IActionResult> GetGradeSubjectsPaged([FromQuery] PaginationParameters parameters)
         {
-            var response = await _gradeSubjectService.GetGradeSubjectsPagedAsync(parameters);
+            var response = await _gradeSubjectService.GetGradeSubjectsPaged(parameters);
             return Ok(response);
         }
 
@@ -57,7 +57,7 @@ namespace CRUD.Controllers
         [HttpGet("GetGradeSubjectsByGradeIdPaged")]
         public async Task<IActionResult> GetGradeSubjectsByGradeIdPaged(int gradeId, [FromQuery] PaginationParameters parameters)
         {
-            var response = await _gradeSubjectService.GetGradeSubjectsByGradeIdPagedAsync(gradeId, parameters);
+            var response = await _gradeSubjectService.GetGradeSubjectsByGradeIdPaged(gradeId, parameters);
             return Ok(response);
         }
 

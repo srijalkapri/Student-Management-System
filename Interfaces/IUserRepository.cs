@@ -4,8 +4,8 @@ namespace CRUD.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User?> GetByUsernameAsync(string username);
-        Task<User?> GetByIdAsync(int id);
-        Task<int> CreateAsync(User user);
+        Task<User?> GetByUsername(string username);
+        Task<User?> GetById(int id);
+        Task<int> Create(User user);
     }
 }

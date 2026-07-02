@@ -26,7 +26,7 @@ namespace CRUD.Controllers
         [HttpGet("GetSchedulesPaged")]
         public async Task<IActionResult> GetSchedulesPaged([FromQuery] PaginationParameters parameters)
         {
-            var response = await _examService.GetSchedulesPagedAsync(parameters);
+            var response = await _examService.GetSchedulesPaged(parameters);
             return Ok(response);
         }
 
@@ -55,7 +55,7 @@ namespace CRUD.Controllers
         [HttpGet("GetSchedulesByGradePaged")]
         public async Task<IActionResult> GetSchedulesByGradePaged(int gradeId, [FromQuery] PaginationParameters parameters)
         {
-            var response = await _examService.GetSchedulesByGradePagedAsync(gradeId, parameters);
+            var response = await _examService.GetSchedulesByGradePaged(gradeId, parameters);
             if (!response.Success)
             {
                 return NotFound(response);

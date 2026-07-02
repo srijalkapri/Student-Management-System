@@ -32,7 +32,7 @@ namespace CRUD.Controllers
         [HttpGet("GetSubjectsPaged")]
         public async Task<IActionResult> GetSubjectsPaged([FromQuery] PaginationParameters parameters)
         {
-            var response = await _subjectService.GetSubjectsPagedAsync(parameters);
+            var response = await _subjectService.GetSubjectsPaged(parameters);
             return Ok(response);
         }
 

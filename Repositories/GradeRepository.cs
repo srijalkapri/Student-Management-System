@@ -86,7 +86,7 @@ namespace CRUD.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<PagedResult<GradeResponseDto>> GetGradesPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<GradeResponseDto>> GetGradesPaged(PaginationParameters parameters)
         {
             var query = _context.Grades
                 .OrderBy(g => g.Id)

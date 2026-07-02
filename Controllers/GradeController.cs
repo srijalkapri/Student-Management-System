@@ -32,7 +32,7 @@ namespace CRUD.Controllers
         [HttpGet("GetGradesPaged")]
         public async Task<IActionResult> GetGradesPaged([FromQuery] PaginationParameters parameters)
         {
-            var response = await _gradeService.GetGradesPagedAsync(parameters);
+            var response = await _gradeService.GetGradesPaged(parameters);
             return Ok(response);
         }
 
