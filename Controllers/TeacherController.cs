@@ -1,5 +1,5 @@
-using CRUD.DTOs;
-using CRUD.Interfaces;
+using CRUD.Application.DTOs;
+using CRUD.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 

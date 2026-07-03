@@ -1,29 +1,26 @@
 using System.Text;
-using CRUD.Data;
-using CRUD.Interfaces;
-using CRUD.Repositories;
-using CRUD.Services;
-using CRUD.Validators;
-using FluentValidation;
+using CRUD.Application;
+using CRUD.Application.Responses;
+using CRUD.Infrastructure;
+using CRUD.Infrastructure.Persistence;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using CRUD.Responses;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection")
-    ?? throw new InvalidOperationException("Connection string 'PostgreSQLConnection' not found.");
 
-// Add FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<StudentCreateDtoValidator>();
+
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddFluentValidationAutoValidation();
 
-// Add JWT Authentication
+// JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -35,11 +32,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? ""))
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? ""))
         };
     });
 
-// Add Authorization with global filter
+// Controllers + global auth filter + validation error response
 builder.Services.AddControllers(options =>
 {
     var policy = new AuthorizationPolicyBuilder()
@@ -47,49 +45,29 @@ builder.Services.AddControllers(options =>
         .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 })
-    .ConfigureApiBehaviorOptions(options =>
+.ConfigureApiBehaviorOptions(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
     {
-        options.InvalidModelStateResponseFactory = context =>
+        var errors = context.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+
+        var response = new ServiceResponse<object>
         {
-            var errors = context.ModelState.Values
-                .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage)
-                .ToList();
-
-            var response = new ServiceResponse<object>
-            {
-                Success = false,
-                Message = "One or more validation errors occurred.",
-                Errors = errors
-            };
-
-            return new BadRequestObjectResult(response);
+            Success = false,
+            Message = "One or more validation errors occurred.",
+            Errors = errors
         };
-    });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseLazyLoadingProxies()
-        .UseNpgsql(connectionString));
+        return new BadRequestObjectResult(response);
+    };
+});
 
-// Register new services
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddScoped<IStudentRepository, StudentRepository>();
-builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
-builder.Services.AddScoped<IGradeRepository, GradeRepository>();
-builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
-builder.Services.AddScoped<IGradeSubjectRepository, GradeSubjectRepository>();
-builder.Services.AddScoped<IGradeSubjectTeacherRepository, GradeSubjectTeacherRepository>();
-builder.Services.AddScoped<IExamRepository, ExamRepository>();
 
-builder.Services.AddScoped<IStudentService, StudentService>();
-builder.Services.AddScoped<ITeacherServices, TeacherService>();
-builder.Services.AddScoped<IGradeService, GradeService>();
-builder.Services.AddScoped<ISubjectService, SubjectService>();
-builder.Services.AddScoped<IGradeSubjectService, GradeSubjectService>();
-builder.Services.AddScoped<IGradeSubjectTeacherService, GradeSubjectTeacherService>();
-builder.Services.AddScoped<IExamService, ExamService>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -113,14 +91,14 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            Array.Empty<string>()
         }
     });
 });
 
 var app = builder.Build();
 
-// Initialize database and seed SuperAdmin
+
 await DbInitializer.Initialize(app.Services);
 
 if (app.Environment.IsDevelopment())

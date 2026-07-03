@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using CRUD.DTOs;
-using CRUD.Interfaces;
-using CRUD.Responses;
+using CRUD.Application.DTOs;
+using CRUD.Application.Interfaces;
+using CRUD.Application.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
