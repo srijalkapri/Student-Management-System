@@ -30,6 +30,58 @@ namespace CRUD.Controllers
             return Ok(response);
         }
 
+        [HttpPost("Register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequest)
+        {
+            var response = await _authService.Register(registerRequest);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("PendingUsers")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetPendingUsers()
+        {
+            var response = await _authService.GetPendingUsers();
+            return Ok(response);
+        }
+
+        [HttpPost("Approve/{userId}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> ApproveUser(int userId, [FromBody] ApproveUserRequestDto approveRequest)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new ServiceResponse<string> { Success = false, Message = "User not authenticated" });
+            }
+
+            var approvedByUserId = int.Parse(userIdClaim.Value);
+            var response = await _authService.ApproveUser(userId, approveRequest, approvedByUserId);
+            
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("Reject/{userId}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> RejectUser(int userId)
+        {
+            var response = await _authService.RejectUser(userId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
         [HttpGet("Me")]
         public async Task<IActionResult> GetCurrentUser()
         {

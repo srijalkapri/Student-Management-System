@@ -1,11 +1,13 @@
 using CRUD.Application.DTOs;
 using CRUD.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "SuperAdmin,Teacher")]
     public class GradeController : ControllerBase
     {
         private readonly IGradeService _gradeService;

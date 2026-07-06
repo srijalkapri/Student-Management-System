@@ -16,7 +16,8 @@ namespace CRUD.Infrastructure.Persistence
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
             // Check if any SuperAdmin exists
-            if (!await context.Users.AnyAsync(u => u.Role == "SuperAdmin"))
+            var superAdmin = await context.Users.FirstOrDefaultAsync(u => u.Role == "SuperAdmin");
+            if (superAdmin == null)
             {
                 var superAdminUsername = configuration["SuperAdmin:Username"] ?? "superadmin";
                 var superAdminPassword = configuration["SuperAdmin:Password"] ?? "SuperAdmin@123";
@@ -24,17 +25,29 @@ namespace CRUD.Infrastructure.Persistence
 
                 var hashedPassword = BCrypt.Net.BCrypt.HashPassword(superAdminPassword);
 
-                var superAdmin = new User
+                superAdmin = new User
                 {
                     Username = superAdminUsername,
                     PasswordHash = hashedPassword,
                     FullName = superAdminFullName,
                     Role = "SuperAdmin",
+                    Status = UserStatus.Approved,
+                    ApprovedAt = DateTime.UtcNow,
                     CreatedAt = DateTime.UtcNow
                 };
 
                 context.Users.Add(superAdmin);
                 await context.SaveChangesAsync();
+            }
+            else
+            {
+                // Ensure existing SuperAdmin is approved
+                if (superAdmin.Status != UserStatus.Approved)
+                {
+                    superAdmin.Status = UserStatus.Approved;
+                    superAdmin.ApprovedAt = DateTime.UtcNow;
+                    await context.SaveChangesAsync();
+                }
             }
         }
     }

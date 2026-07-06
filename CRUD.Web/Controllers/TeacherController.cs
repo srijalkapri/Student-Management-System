@@ -1,13 +1,14 @@
 using CRUD.Application.DTOs;
 using CRUD.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 
 
 namespace CRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "SuperAdmin")]
     public class TeacherController : ControllerBase
     {
 

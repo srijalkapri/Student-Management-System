@@ -32,11 +32,11 @@ namespace CRUD.Application.Services
                 response.Message = "Invalid username or password";
                 return response;
             }
-
-            if (user.Role != "SuperAdmin")
+    
+            if (user.Status != UserStatus.Approved)
             {
                 response.Success = false;
-                response.Message = "Unauthorized role";
+                response.Message = "Your account is pending admin approval";
                 return response;
             }
 
@@ -82,6 +82,126 @@ namespace CRUD.Application.Services
                 Role = user.Role
             };
 
+            return response;
+        }
+
+        public async Task<ServiceResponse<string>> Register(RegisterRequestDto registerRequest)
+        {
+            var response = new ServiceResponse<string>();
+            
+            // Check if passwords match
+            if (registerRequest.Password != registerRequest.ConfirmPassword)
+            {
+                response.Success = false;
+                response.Message = "Passwords do not match";
+                return response;
+            }
+            
+            // Check if username already exists
+            var existingUser = await _userRepository.GetByUsername(registerRequest.Username);
+            if (existingUser != null)
+            {
+                response.Success = false;
+                response.Message = "Username already exists";
+                return response;
+            }
+            
+            // Hash password
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+            
+            // Create new user
+            var user = new User
+            {
+                Username = registerRequest.Username,
+                PasswordHash = hashedPassword,
+                FullName = registerRequest.FullName,
+                Email = registerRequest.Email,
+                Role = "User",
+                Status = UserStatus.Pending,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            await _userRepository.Create(user);
+            
+            response.Data = "Registration submitted. Wait for admin approval.";
+            response.Message = "Success";
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<PendingUserResponseDto>>> GetPendingUsers()
+        {
+            var response = new ServiceResponse<List<PendingUserResponseDto>>();
+            var pendingUsers = await _userRepository.GetPendingUsers();
+            
+            var dtos = pendingUsers.Select(u => new PendingUserResponseDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                FullName = u.FullName,
+                Email = u.Email,
+                CreatedAt = u.CreatedAt
+            }).ToList();
+            
+            response.Data = dtos;
+            response.Message = "Success";
+            return response;
+        }
+
+        public async Task<ServiceResponse<string>> ApproveUser(int userId, ApproveUserRequestDto approveRequest, int approvedByUserId)
+        {
+            var response = new ServiceResponse<string>();
+            var user = await _userRepository.GetById(userId);
+            
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+                return response;
+            }
+            
+            if (user.Status != UserStatus.Pending)
+            {
+                response.Success = false;
+                response.Message = "User is not pending approval";
+                return response;
+            }
+            
+            user.Status = UserStatus.Approved;
+            user.Role = approveRequest.Role;
+            user.ApprovedAt = DateTime.UtcNow;
+            user.ApprovedByUserId = approvedByUserId;
+            
+            await _userRepository.Update(user);
+            
+            response.Data = "User approved successfully";
+            response.Message = "Success";
+            return response;
+        }
+
+        public async Task<ServiceResponse<string>> RejectUser(int userId)
+        {
+            var response = new ServiceResponse<string>();
+            var user = await _userRepository.GetById(userId);
+            
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User not found";
+                return response;
+            }
+            
+            if (user.Status != UserStatus.Pending)
+            {
+                response.Success = false;
+                response.Message = "User is not pending approval";
+                return response;
+            }
+            
+            user.Status = UserStatus.Rejected;
+            await _userRepository.Update(user);
+            
+            response.Data = "User rejected successfully";
+            response.Message = "Success";
             return response;
         }
 

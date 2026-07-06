@@ -17,13 +17,13 @@ namespace CRUD.Infrastructure.Repositories
         public async Task<User?> GetByUsername(string username)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == username);
+                .FirstOrDefaultAsync(u => u.Username == username && !u.IsDeleted);
         }
 
         public async Task<User?> GetById(int id)
         {
             return await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
         }
 
         public async Task<int> Create(User user)
@@ -31,6 +31,27 @@ namespace CRUD.Infrastructure.Repositories
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user.Id;
+        }
+
+        public async Task<List<User>> GetPendingUsers()
+        {
+            return await _context.Users
+                .Where(u => u.Status == UserStatus.Pending && !u.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<User?> Update(User user)
+        {
+            var existing = await _context.Users.FindAsync(user.Id);
+            if (existing == null) return null;
+            
+            existing.Role = user.Role;
+            existing.Status = user.Status;
+            existing.ApprovedAt = user.ApprovedAt;
+            existing.ApprovedByUserId = user.ApprovedByUserId;
+            
+            await _context.SaveChangesAsync();
+            return existing;
         }
     }
 }
