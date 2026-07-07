@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped<IGradeSubjectService, GradeSubjectService>();
         services.AddScoped<IGradeSubjectTeacherService, GradeSubjectTeacherService>();
         services.AddScoped<IExamService, ExamService>();
+        services.AddScoped<IAcessLogWriter, AccessLogWriter>();
         services.AddValidatorsFromAssemblyContaining<StudentCreateDtoValidator>();
         return services;
     }

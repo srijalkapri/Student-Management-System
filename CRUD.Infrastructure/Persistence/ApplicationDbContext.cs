@@ -20,6 +20,7 @@ namespace CRUD.Infrastructure.Persistence
         public DbSet<ExamSchedule> ExamSchedules { get; set; }
         public DbSet<ExamSession> ExamSessions { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<AcessLog> AcessLogs => Set<AcessLog>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
