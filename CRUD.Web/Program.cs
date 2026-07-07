@@ -1,15 +1,17 @@
 using System.Text;
 using CRUD.Application;
+using CRUD.Application.Optionss;
 using CRUD.Application.Responses;
 using CRUD.Infrastructure;
 using CRUD.Infrastructure.Persistence;
+using CRUD.Web.Middleware;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
-
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +20,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.Configure<AccessLogOptions>(builder.Configuration.GetSection("AccessLog"));
 builder.Services.AddFluentValidationAutoValidation();
 
-// JWT Authentication
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -37,7 +40,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Controllers + global auth filter + validation error response
+
 builder.Services.AddControllers(options =>
 {
     var policy = new AuthorizationPolicyBuilder()
@@ -114,6 +117,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AccessLogMiddleware>();
 
 app.MapControllers();
 app.Run();
