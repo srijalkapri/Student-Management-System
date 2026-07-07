@@ -10,7 +10,7 @@ namespace CRUD.Application.Services
         private readonly IAcessLogRepository _repository;
         private readonly AccessLogOptions _options;
 
-        public AccessLogWriter(IAcessLogRepository repository, IOptions<AccessLogOptions> options)
+        public AccessLogWriter(IAcessLogRepository repository, IOptions<AccessLogOptions> options)  
         {
             _repository = repository;
             _options = options.Value;

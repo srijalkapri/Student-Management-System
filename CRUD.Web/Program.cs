@@ -16,7 +16,26 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 
+var rrOptions = builder.Configuration
+    .GetSection("RequestResponseLogging")
+    .Get<RequestResponseLoggingOptions>() ?? new RequestResponseLoggingOptions();
 
+var logPath = Path.Combine(
+    rrOptions.LogDirectory,
+    $"{rrOptions.FileNamePrefix}-.log");
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File(
+        path: logPath,
+        rollingInterval: RollingInterval.Minute,  
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm} | {Message}{NewLine}",
+        shared: true)
+    .CreateLogger();
+builder.Host.UseSerilog();
+
+builder.Services.Configure<RequestResponseLoggingOptions>(
+    builder.Configuration.GetSection("RequestResponseLogging"));
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -72,6 +91,9 @@ builder.Services.AddControllers(options =>
 
 
 
+
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -117,6 +139,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 app.UseMiddleware<AccessLogMiddleware>();
 
 app.MapControllers();

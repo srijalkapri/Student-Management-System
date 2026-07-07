@@ -19,4 +19,4 @@ namespace CRUD.Infrastructure.Repositories
             await _context.SaveChangesAsync(ct);
         }
     }
-}
+}   
