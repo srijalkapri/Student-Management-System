@@ -1,7 +1,7 @@
-﻿using System.Security.Claims;
-using System.Text;
+﻿using System.Text;
 using CRUD.Application.Optionss;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace CRUD.Web.Middleware
 {
@@ -9,12 +9,12 @@ namespace CRUD.Web.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly RequestResponseLoggingOptions _options;
-        private readonly ILogger<RequestResponseLoggingMiddleware> _logger;
+        private readonly Serilog.ILogger _logger;
 
         public RequestResponseLoggingMiddleware(
             RequestDelegate next,
             IOptions<RequestResponseLoggingOptions> options,
-            ILogger<RequestResponseLoggingMiddleware> logger)
+            Serilog.ILogger logger)
         {
             _next = next;
             _options = options.Value;
@@ -40,32 +40,46 @@ namespace CRUD.Web.Middleware
             context.Request.EnableBuffering();
             var requestBody = await ReadRequestBody(context.Request);
 
-            
+            var request = context.Request;
+            var contentType = request.ContentType ?? "null";
+            var contentLength = request.ContentLength?.ToString() ?? "null";
+            _logger.Information(
+                "Request starting {Method} {Scheme}://{Host}{Path} - {ContentType} {ContentLength}",
+                request.Method,
+                request.Scheme,
+                request.Host,
+                request.Path,
+                contentType,
+                contentLength);
+
             var originalBody = context.Response.Body;
             using var responseBody = new MemoryStream();
             context.Response.Body = responseBody;
 
-            await _next(context);  
+            await _next(context);
 
-            
+            var endpointName = context.GetEndpoint()?.DisplayName;
+            if (!string.IsNullOrWhiteSpace(endpointName))
+            {
+                _logger.Information("Executing endpoint '{EndpointName}'", endpointName);
+            }
+
             var responseText = await ReadResponseBody(context.Response);
             await responseBody.CopyToAsync(originalBody);
             context.Response.Body = originalBody;
 
-           
-            var userName = context.User.FindFirstValue(ClaimTypes.Name) ?? "anonymous";
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            var endpoint = $"{context.Request.Method} {path}";
+            var requestLog = string.IsNullOrWhiteSpace(requestBody) ? endpoint : requestBody;
 
             var logMessage =
-                $"[{context.Request.Method}] {path} | User: {userName} | Status: {context.Response.StatusCode}{Environment.NewLine}" +
-                $"Request: {requestBody}{Environment.NewLine}" +
+                $"Request: {requestLog}{Environment.NewLine}" +
                 $"Response: {responseText}";
 
-            _logger.LogInformation(logMessage);
+            _logger.Information(logMessage);
         }
 
         private static async Task<string> ReadRequestBody(HttpRequest request)
-            {
+        {
             request.Body.Position = 0;
             using var reader = new StreamReader(request.Body, Encoding.UTF8, leaveOpen: true);
             var body = await reader.ReadToEndAsync();

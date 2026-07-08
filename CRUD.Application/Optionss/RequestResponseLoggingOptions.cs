@@ -13,5 +13,7 @@ namespace CRUD.Application.Optionss
 
         public string FileNamePrefix { get; set; } = "RequestResponseLog_";
 
+        public int RollingIntervalMinutes { get; set; } = 5;
+
     }
 }
