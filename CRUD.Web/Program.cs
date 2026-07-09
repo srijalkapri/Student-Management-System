@@ -4,6 +4,7 @@ using CRUD.Application.Optionss;
 using CRUD.Application.Responses;
 using CRUD.Infrastructure;
 using CRUD.Infrastructure.Persistence;
+using CRUD.Web.Logging;
 using CRUD.Web.Middleware;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,22 +21,11 @@ var rrOptions = builder.Configuration
     .GetSection("RequestResponseLogging")
     .Get<RequestResponseLoggingOptions>() ?? new RequestResponseLoggingOptions();
 
-var logPath = Path.Combine(
-    rrOptions.LogDirectory,
-    $"{rrOptions.FileNamePrefix}-.log");
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.File(
-        path: logPath,
-        rollingInterval: RollingInterval.Minute,  
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm} | {Message}{NewLine}",
-        shared: true)
-    .CreateLogger();
-builder.Host.UseSerilog();
+var requestResponseLogger = RequestResponseLoggerFactory.Create(rrOptions);
 
 builder.Services.Configure<RequestResponseLoggingOptions>(
     builder.Configuration.GetSection("RequestResponseLogging"));
+builder.Services.AddSingleton<Serilog.ILogger>(requestResponseLogger);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -143,4 +133,11 @@ app.UseMiddleware<RequestResponseLoggingMiddleware>();
 app.UseMiddleware<AccessLogMiddleware>();
 
 app.MapControllers();
+
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    if (requestResponseLogger is IDisposable disposable)
+        disposable.Dispose();
+});
+
 app.Run();
