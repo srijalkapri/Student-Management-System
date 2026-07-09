@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using CRUD.Application.Optionss;
 using Microsoft.Extensions.Options;
-using Serilog;
+
 
 namespace CRUD.Web.Middleware
 {
