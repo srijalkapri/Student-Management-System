@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using Serilog;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,12 +76,6 @@ builder.Services.AddControllers(options =>
         return new BadRequestObjectResult(response);
     };
 });
-
-
-
-
-
-
 
 
 builder.Services.AddEndpointsApiExplorer();
