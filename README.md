@@ -61,7 +61,7 @@ CRUD/ ├── CRUD.Domain/ # Entities and domain models ├── CRUD.Applica
 git clone <your-repo-url>
 cd CRUD
 
-2. Configure the database
+### 2. Configure the database
 Update CRUD.Web/appsettings.json (or use User Secrets / environment variables):
 
 
