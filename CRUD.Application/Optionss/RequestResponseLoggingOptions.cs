@@ -13,7 +13,11 @@ namespace CRUD.Application.Optionss
 
         public string FileNamePrefix { get; set; } = "RequestResponseLog_";
 
+        public string RollingMode { get; set; } = "Custom";
+
         public int RollingIntervalMinutes { get; set; } = 5;
+
+        public int MaxFileSizeKb { get; set; } = 500;
 
     }
 }
