@@ -1,0 +1,14 @@
+**/.git
+**/.vs
+**/.vscode
+**/.idea
+**/bin
+**/obj
+**/Logs
+**/out
+**/publish
+**/*.user
+**/.dockerignore
+README.md
+DEPLOY.md
+.github

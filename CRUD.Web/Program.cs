@@ -9,13 +9,12 @@ using CRUD.Web.Middleware;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
 
-
 var builder = WebApplication.CreateBuilder(args);
-
 
 var rrOptions = builder.Configuration
     .GetSection("RequestResponseLogging")
@@ -32,6 +31,40 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.Configure<AccessLogOptions>(builder.Configuration.GetSection("AccessLog"));
 builder.Services.AddFluentValidationAutoValidation();
 
+var corsSettings = builder.Configuration
+    .GetSection(CorsSettings.SectionName)
+    .Get<CorsSettings>() ?? new CorsSettings();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        if (corsSettings.AllowedOrigins.Length > 0)
+        {
+            policy
+                .WithOrigins(corsSettings.AllowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+        else if (builder.Environment.IsDevelopment())
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "http://127.0.0.1:5173",
+                    "http://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+    });
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -48,7 +81,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? ""))
         };
     });
-
 
 builder.Services.AddControllers(options =>
 {
@@ -76,7 +108,6 @@ builder.Services.AddControllers(options =>
         return new BadRequestObjectResult(response);
     };
 });
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -107,10 +138,12 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-
 await DbInitializer.Initialize(app.Services);
 
-if (app.Environment.IsDevelopment())
+app.UseForwardedHeaders();
+
+if (app.Environment.IsDevelopment() ||
+    string.Equals(builder.Configuration["EnableSwagger"], "true", StringComparison.OrdinalIgnoreCase))
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -119,12 +152,24 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    // Behind Render/Neon reverse proxies; forwarded headers already applied.
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
 app.UseMiddleware<AccessLogMiddleware>();
+
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
+    .AllowAnonymous();
 
 app.MapControllers();
 

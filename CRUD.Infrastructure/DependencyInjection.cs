@@ -17,7 +17,10 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("Connection string 'PostgreSQLConnection' not found.");
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseLazyLoadingProxies().UseNpgsql(connectionString));
+            options.UseLazyLoadingProxies().UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.EnableRetryOnFailure(3);
+            }));
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IStudentRepository, StudentRepository>();
