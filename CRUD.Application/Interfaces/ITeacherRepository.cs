@@ -15,6 +15,12 @@ namespace CRUD.Application.Interfaces
         Task<List<TeacherResponseDto>> GetAllTeachers();
         Task<TeacherResponseDto?> GetTeacherById(int id);
         Task<TeacherDetailsDto?> GetTeacherDetails(int id);
+        Task<Teacher?> GetTeacherEntityByUserId(int userId);
+        Task<Teacher?> GetTeacherEntityById(int id);
+        Task LinkUser(int teacherId, int userId);
+        Task<List<GradeResponseDto>> GetAssignedGrades(int teacherId);
+        Task<List<StudentDetailsDto>> GetAssignedStudents(int teacherId);
+        Task<List<TeacherSubjectAssignmentDto>> GetAssignedSubjects(int teacherId);
         Task<PagedResult<TeacherResponseDto>> GetTeachersPaged(PaginationParameters parameters);
     }
 }

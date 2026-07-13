@@ -7,7 +7,7 @@ namespace CRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin,Teacher")]
+    [Authorize(Roles = "SuperAdmin")]
     public class GradeSubjectTeacherController : ControllerBase
     {
         private readonly IGradeSubjectTeacherService _service;

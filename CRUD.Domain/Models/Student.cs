@@ -8,9 +8,11 @@ namespace CRUD.Domain.Models
         public string Email { get; set; } = string.Empty;
         public string PhoneNo { get; set; } = string.Empty;
         public int GradeId { get; set; }
+        public int? UserId { get; set; }
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
 
         public virtual Grade Grade { get; set; } = null!;
+        public virtual User? User { get; set; }
     }
 }

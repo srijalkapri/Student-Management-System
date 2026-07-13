@@ -153,6 +153,34 @@ namespace CRUD.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Student?> GetStudentEntityByUserId(int userId)
+        {
+            return await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+        }
+
+        public async Task<Student?> GetStudentEntityById(int id)
+        {
+            return await _context.Students.FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task LinkUser(int studentId, int userId)
+        {
+            var existingWithUser = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+            if (existingWithUser != null && existingWithUser.Id != studentId)
+            {
+                existingWithUser.UserId = null;
+            }
+
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == studentId);
+            if (student == null)
+            {
+                return;
+            }
+
+            student.UserId = userId;
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<StudentDetailsDto>> GetStudentsByGradeId(int gradeId)
         {
             return await _context.Students

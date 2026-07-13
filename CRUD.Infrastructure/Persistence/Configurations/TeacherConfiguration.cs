@@ -23,6 +23,11 @@ namespace CRUD.Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(20);
 
+            builder.HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // Global query filter
             builder.HasQueryFilter(t => !t.IsDeleted);
 
@@ -36,6 +41,11 @@ namespace CRUD.Infrastructure.Persistence.Configurations
                 .HasDatabaseName("IX_Teachers_PhoneNo_Active")
                 .IsUnique()
                 .HasFilter("\"IsDeleted\" = false");
+
+            builder.HasIndex(t => t.UserId)
+                .HasDatabaseName("IX_Teachers_UserId_Active")
+                .IsUnique()
+                .HasFilter("\"UserId\" IS NOT NULL AND \"IsDeleted\" = false");
         }
     }
 }
