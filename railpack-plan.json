@@ -1,0 +1,13 @@
+{
+  "providers": ["dotnet"],
+  "build": {
+    "cmds": [
+      "dotnet publish CRUD.Web/CRUD.Web.csproj -c Release -o out"
+    ]
+  },
+  "deploy": {
+    "start": {
+      "cmd": "dotnet out/CRUD.Web.dll"
+    }
+  }
+}
