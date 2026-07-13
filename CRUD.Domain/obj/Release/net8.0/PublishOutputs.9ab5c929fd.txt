@@ -1,0 +1,3 @@
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\bin\Release\net8.0\publish\CRUD.Domain.dll
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\bin\Release\net8.0\publish\CRUD.Domain.deps.json
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\bin\Release\net8.0\publish\CRUD.Domain.pdb

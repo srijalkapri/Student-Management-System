@@ -1,0 +1,3 @@
+C:\Users\Srijal\source\repos\CRUD\publish\CRUD.Domain.dll
+C:\Users\Srijal\source\repos\CRUD\publish\CRUD.Domain.deps.json
+C:\Users\Srijal\source\repos\CRUD\publish\CRUD.Domain.pdb

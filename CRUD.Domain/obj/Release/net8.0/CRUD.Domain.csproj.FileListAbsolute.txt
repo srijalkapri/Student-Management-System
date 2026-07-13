@@ -1,0 +1,12 @@
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\bin\Release\net8.0\CRUD.Domain.deps.json
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\bin\Release\net8.0\CRUD.Domain.dll
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\bin\Release\net8.0\CRUD.Domain.pdb
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\CRUD.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\CRUD.Domain.AssemblyInfoInputs.cache
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\CRUD.Domain.AssemblyInfo.cs
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\CRUD.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\CRUD.Domain.sourcelink.json
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\CRUD.Domain.dll
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\refint\CRUD.Domain.dll
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\CRUD.Domain.pdb
+C:\Users\Srijal\source\repos\CRUD\CRUD.Domain\obj\Release\net8.0\ref\CRUD.Domain.dll
