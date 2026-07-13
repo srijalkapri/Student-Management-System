@@ -8,7 +8,7 @@ namespace CRUD.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin,Teacher")]
+    [Authorize(Roles = "SuperAdmin")]
     public class ExamController : ControllerBase
     {
         private readonly IExamService _examService;

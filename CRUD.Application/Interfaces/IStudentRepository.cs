@@ -12,6 +12,9 @@ namespace CRUD.Application.Interfaces
 
         Task<List<StudentDetailsDto>> GetAllStudents();
         Task<StudentDetailsDto?> GetStudentById(int id);
+        Task<Student?> GetStudentEntityByUserId(int userId);
+        Task<Student?> GetStudentEntityById(int id);
+        Task LinkUser(int studentId, int userId);
         Task<List<StudentDetailsDto>> GetStudentsByGradeId(int gradeId);
         Task<PromoteStudentsResponseDto> PreviewPromotion(int fromGradeId, int toGradeId, List<int>? studentIds);
         Task<PromoteStudentsResponseDto> PromoteStudents(int fromGradeId, int toGradeId, List<int>? studentIds);

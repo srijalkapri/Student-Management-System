@@ -128,6 +128,139 @@ namespace CRUD.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Teacher?> GetTeacherEntityByUserId(int userId)
+        {
+            return await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId);
+        }
+
+        public async Task<Teacher?> GetTeacherEntityById(int id)
+        {
+            return await _context.Teachers.FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task LinkUser(int teacherId, int userId)
+        {
+            var existingWithUser = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId);
+            if (existingWithUser != null && existingWithUser.Id != teacherId)
+            {
+                existingWithUser.UserId = null;
+            }
+
+            var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.Id == teacherId);
+            if (teacher == null)
+            {
+                return;
+            }
+
+            teacher.UserId = userId;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<GradeResponseDto>> GetAssignedGrades(int teacherId)
+        {
+            var classTeacherGrades = await _context.Grades
+                .Where(g => g.ClassTeacherId == teacherId)
+                .Select(g => new GradeResponseDto
+                {
+                    Id = g.Id,
+                    ClassName = g.ClassName,
+                    ClassTeacherId = g.ClassTeacherId,
+                    ClassTeacher = g.ClassTeacher != null
+                        ? new TeacherResponseDto
+                        {
+                            Id = g.ClassTeacher.Id,
+                            Name = g.ClassTeacher.Name,
+                            Email = g.ClassTeacher.Email,
+                            PhoneNo = g.ClassTeacher.PhoneNo
+                        }
+                        : null
+                })
+                .ToListAsync();
+
+            var subjectGrades = await _context.GradeSubjectTeachers
+                .Where(gst => gst.TeacherId == teacherId)
+                .Select(gst => new GradeResponseDto
+                {
+                    Id = gst.GradeSubject.GradeId,
+                    ClassName = gst.GradeSubject.Grade.ClassName,
+                    ClassTeacherId = gst.GradeSubject.Grade.ClassTeacherId,
+                    ClassTeacher = gst.GradeSubject.Grade.ClassTeacher != null
+                        ? new TeacherResponseDto
+                        {
+                            Id = gst.GradeSubject.Grade.ClassTeacher.Id,
+                            Name = gst.GradeSubject.Grade.ClassTeacher.Name,
+                            Email = gst.GradeSubject.Grade.ClassTeacher.Email,
+                            PhoneNo = gst.GradeSubject.Grade.ClassTeacher.PhoneNo
+                        }
+                        : null
+                })
+                .ToListAsync();
+
+            return classTeacherGrades
+                .Concat(subjectGrades)
+                .GroupBy(g => g.Id)
+                .Select(g => g.First())
+                .OrderBy(g => g.Id)
+                .ToList();
+        }
+
+        public async Task<List<StudentDetailsDto>> GetAssignedStudents(int teacherId)
+        {
+            var gradeIds = (await GetAssignedGrades(teacherId)).Select(g => g.Id).ToList();
+            if (gradeIds.Count == 0)
+            {
+                return new List<StudentDetailsDto>();
+            }
+
+            return await _context.Students
+                .Where(s => gradeIds.Contains(s.GradeId))
+                .Select(student => new StudentDetailsDto
+                {
+                    Id = student.Id,
+                    Name = student.Name,
+                    Email = student.Email,
+                    PhoneNo = student.PhoneNo,
+                    GradeId = student.GradeId,
+                    GradeName = student.Grade.ClassName,
+                    ClassTeacherId = student.Grade.ClassTeacherId,
+                    ClassTeacher = student.Grade.ClassTeacher != null
+                        ? new TeacherResponseDto
+                        {
+                            Id = student.Grade.ClassTeacher.Id,
+                            Name = student.Grade.ClassTeacher.Name,
+                            Email = student.Grade.ClassTeacher.Email,
+                            PhoneNo = student.Grade.ClassTeacher.PhoneNo
+                        }
+                        : null,
+                    Subjects = new List<GradeSubjectWithTeachersResponseDto>()
+                })
+                .OrderBy(s => s.GradeId)
+                .ThenBy(s => s.Name)
+                .ToListAsync();
+        }
+
+        public async Task<List<TeacherSubjectAssignmentDto>> GetAssignedSubjects(int teacherId)
+        {
+            var assignments = await _context.GradeSubjectTeachers
+                .Where(gst => gst.TeacherId == teacherId)
+                .Select(gst => new TeacherSubjectAssignmentDto
+                {
+                    GradeId = gst.GradeSubject.GradeId,
+                    GradeName = gst.GradeSubject.Grade.ClassName,
+                    SubjectId = gst.GradeSubject.SubjectId,
+                    SubjectName = gst.GradeSubject.Subject.Name,
+                    IsOptional = gst.GradeSubject.IsOptional
+                })
+                .ToListAsync();
+
+            return assignments
+                .GroupBy(x => new { x.GradeId, x.SubjectId })
+                .Select(g => g.First())
+                .OrderBy(x => x.GradeName)
+                .ThenBy(x => x.SubjectName)
+                .ToList();
+        }
+
         public async Task<PagedResult<TeacherResponseDto>> GetTeachersPaged(PaginationParameters parameters)
         {
             var query = _context.Teachers

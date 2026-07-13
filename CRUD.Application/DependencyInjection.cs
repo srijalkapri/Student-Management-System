@@ -13,6 +13,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<ITeacherServices, TeacherService>();
+        services.AddScoped<ITeacherPortalService, TeacherPortalService>();
+        services.AddScoped<IStudentPortalService, StudentPortalService>();
         services.AddScoped<IGradeService, GradeService>();
         services.AddScoped<ISubjectService, SubjectService>();
         services.AddScoped<IGradeSubjectService, GradeSubjectService>();
