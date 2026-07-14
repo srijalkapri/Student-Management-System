@@ -107,15 +107,35 @@ namespace CRUD.Application.Services
                 return response;
             }
 
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
             var existingUser = await _userRepository.GetByUsername(registerRequest.Username);
+
             if (existingUser != null)
             {
-                response.Success = false;
-                response.Message = "Username already exists";
+                // Rejected accounts keep the username until soft-deleted;
+                // allow the same username to register again.
+                if (existingUser.Status != UserStatus.Rejected)
+                {
+                    response.Success = false;
+                    response.Message = "Username already exists";
+                    return response;
+                }
+
+                existingUser.PasswordHash = hashedPassword;
+                existingUser.FullName = registerRequest.FullName;
+                existingUser.Email = registerRequest.Email;
+                existingUser.Role = "User";
+                existingUser.Status = UserStatus.Pending;
+                existingUser.ApprovedAt = null;
+                existingUser.ApprovedByUserId = null;
+                existingUser.CreatedAt = DateTime.UtcNow;
+
+                await _userRepository.Update(existingUser);
+
+                response.Data = "Registration submitted. Wait for admin approval.";
+                response.Message = "Success";
                 return response;
             }
-
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
 
             var user = new User
             {
@@ -221,7 +241,10 @@ namespace CRUD.Application.Services
                 return response;
             }
 
+            // Soft-delete frees the username (unique index only applies to active users).
             user.Status = UserStatus.Rejected;
+            user.IsDeleted = true;
+            user.DeletedAt = DateTime.UtcNow;
             await _userRepository.Update(user);
 
             response.Data = "User rejected successfully";

@@ -44,12 +44,18 @@ namespace CRUD.Infrastructure.Repositories
         {
             var existing = await _context.Users.FindAsync(user.Id);
             if (existing == null) return null;
-            
+
+            existing.PasswordHash = user.PasswordHash;
+            existing.FullName = user.FullName;
+            existing.Email = user.Email;
             existing.Role = user.Role;
             existing.Status = user.Status;
             existing.ApprovedAt = user.ApprovedAt;
             existing.ApprovedByUserId = user.ApprovedByUserId;
-            
+            existing.IsDeleted = user.IsDeleted;
+            existing.DeletedAt = user.DeletedAt;
+            existing.CreatedAt = user.CreatedAt;
+
             await _context.SaveChangesAsync();
             return existing;
         }
