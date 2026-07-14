@@ -43,8 +43,12 @@ dotnet ef database update --project CRUD.Infrastructure --startup-project CRUD.W
 | `SuperAdmin__Username` | `superadmin` |
 | `SuperAdmin__Password` | strong password |
 | `SuperAdmin__FullName` | `Super Administrator` |
-| `Cors__AllowedOrigins__0` | `https://YOUR-APP.vercel.app` |
+| `Cors__AllowedOrigins` | `https://YOUR-APP.vercel.app` (comma-separated if multiple) |
 | `EnableSwagger` | `true` (optional, for testing) |
+
+> Tip: you can also use `Cors__AllowedOrigins__0`.  
+> Example with local testing too:  
+> `Cors__AllowedOrigins=https://YOUR-APP.vercel.app,http://localhost:5173`
 
 5. Deploy. Note your URL: `https://YOUR-API.onrender.com`
 6. Test: `GET https://YOUR-API.onrender.com/health`
@@ -67,7 +71,7 @@ Frontend folder: `C:\Users\Srijal\OneDrive\Desktop\FrontEnd`
 | `VITE_API_URL` | `https://YOUR-API.onrender.com` (no trailing slash) |
 
 5. Deploy. Note URL: `https://YOUR-APP.vercel.app`
-6. Go back to Render and set `Cors__AllowedOrigins__0` to that Vercel URL, then **redeploy** the API.
+6. Go back to Render and set `Cors__AllowedOrigins` to that Vercel URL (exact match, no trailing slash), then **redeploy** the API.
 
 Local frontend still works without `VITE_API_URL` (Vite proxies `/api` → `https://localhost:7172`).
 

@@ -6,7 +6,9 @@ namespace CRUD.Application.Optionss
 
         /// <summary>
         /// Frontend origins allowed to call the API (e.g. https://your-app.vercel.app).
-        /// Set via env: Cors__AllowedOrigins__0, Cors__AllowedOrigins__1, ...
+        /// Render/env options:
+        /// - Cors__AllowedOrigins__0=https://app.vercel.app
+        /// - Cors__AllowedOrigins=https://app.vercel.app,http://localhost:5173
         /// </summary>
         public string[] AllowedOrigins { get; set; } = Array.Empty<string>();
     }

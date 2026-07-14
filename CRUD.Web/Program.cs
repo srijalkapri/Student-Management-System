@@ -31,33 +31,20 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.Configure<AccessLogOptions>(builder.Configuration.GetSection("AccessLog"));
 builder.Services.AddFluentValidationAutoValidation();
 
-var corsSettings = builder.Configuration
-    .GetSection(CorsSettings.SectionName)
-    .Get<CorsSettings>() ?? new CorsSettings();
+var allowedOrigins = ResolveCorsOrigins(builder.Configuration, builder.Environment);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        if (corsSettings.AllowedOrigins.Length > 0)
-        {
-            policy
-                .WithOrigins(corsSettings.AllowedOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        }
-        else if (builder.Environment.IsDevelopment())
-        {
-            policy
-                .WithOrigins(
-                    "http://localhost:5173",
-                    "http://127.0.0.1:5173",
-                    "http://localhost:3000")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        }
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
+
+Console.WriteLine($"CORS allowed origins: {string.Join(", ", allowedOrigins)}");
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -180,3 +167,45 @@ app.Lifetime.ApplicationStopping.Register(() =>
 });
 
 app.Run();
+
+static string[] ResolveCorsOrigins(IConfiguration configuration, IHostEnvironment environment)
+{
+    var fromArray = configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>()?
+        .Where(o => !string.IsNullOrWhiteSpace(o))
+        .Select(o => o.Trim().TrimEnd('/'))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray() ?? Array.Empty<string>();
+
+    if (fromArray.Length > 0)
+    {
+        return fromArray;
+    }
+
+    // Supports: Cors__AllowedOrigins=https://a.vercel.app,http://localhost:5173
+    var csv = configuration["Cors:AllowedOrigins"];
+    if (!string.IsNullOrWhiteSpace(csv))
+    {
+        return csv
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(o => o.TrimEnd('/'))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    if (environment.IsDevelopment())
+    {
+        return
+        [
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:3000"
+        ];
+    }
+
+    // Production with no CORS config would block all browser calls.
+    throw new InvalidOperationException(
+        "CORS is not configured. Set Cors__AllowedOrigins (comma-separated) or Cors__AllowedOrigins__0 " +
+        "to your frontend URL, e.g. https://your-app.vercel.app");
+}
