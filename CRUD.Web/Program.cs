@@ -37,14 +37,29 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .WithOrigins(allowedOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        if (allowedOrigins.Length > 0)
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+        else
+        {
+            // Lets Render start / browser Login work before Cors__AllowedOrigins is set.
+            // Prefer locking this down later with Cors__AllowedOrigins=https://your-frontend-url
+            Console.WriteLine(
+                "WARNING: Cors__AllowedOrigins is not set. Allowing any origin. " +
+                "Set Cors__AllowedOrigins to your Vercel URL for tighter security.");
+            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        }
     });
 });
 
-Console.WriteLine($"CORS allowed origins: {string.Join(", ", allowedOrigins)}");
+Console.WriteLine(
+    allowedOrigins.Length > 0
+        ? $"CORS allowed origins: {string.Join(", ", allowedOrigins)}"
+        : "CORS allowed origins: * (temporary AllowAnyOrigin)");
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -204,8 +219,6 @@ static string[] ResolveCorsOrigins(IConfiguration configuration, IHostEnvironmen
         ];
     }
 
-    // Production with no CORS config would block all browser calls.
-    throw new InvalidOperationException(
-        "CORS is not configured. Set Cors__AllowedOrigins (comma-separated) or Cors__AllowedOrigins__0 " +
-        "to your frontend URL, e.g. https://your-app.vercel.app");
+    // Empty => caller uses temporary AllowAnyOrigin so deploy/startup does not crash.
+    return Array.Empty<string>();
 }
