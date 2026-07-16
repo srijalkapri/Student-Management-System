@@ -11,10 +11,12 @@ namespace CRUD.Controllers
     public class StudentPortalController : ControllerBase
     {
         private readonly IStudentPortalService _studentPortalService;
+        private readonly IExamResultService _examResultService;
 
-        public StudentPortalController(IStudentPortalService studentPortalService)
+        public StudentPortalController(IStudentPortalService studentPortalService, IExamResultService examResultService)
         {
             _studentPortalService = studentPortalService;
+            _examResultService = examResultService;
         }
 
         [HttpGet("Overview")]
@@ -99,6 +101,24 @@ namespace CRUD.Controllers
             }
 
             var response = await _studentPortalService.GetMyTeachers(userId.Value);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("Results")]
+        public async Task<IActionResult> GetMyExamResults([FromQuery] int? examScheduleId)
+        {
+            var userId = GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _examResultService.GetStudentResults(userId.Value, examScheduleId);
             if (!response.Success)
             {
                 return BadRequest(response);

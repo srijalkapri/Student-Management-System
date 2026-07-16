@@ -1,6 +1,7 @@
 using CRUD.Application.DTOs;
 using CRUD.Application.Interfaces;
 using CRUD.Application.Responses;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +13,12 @@ namespace CRUD.Controllers
     public class ExamController : ControllerBase
     {
         private readonly IExamService _examService;
+        private readonly IExamResultService _examResultService;
 
-        public ExamController(IExamService examService)
+        public ExamController(IExamService examService, IExamResultService examResultService)
         {
             _examService = examService;
+            _examResultService = examResultService;
         }
 
         [HttpGet("GetAllSchedules")]
@@ -140,6 +143,67 @@ namespace CRUD.Controllers
                 return BadRequest(response);
             }
             return Ok(response);
+        }
+
+        [HttpGet("ResultApprovals/Pending")]
+        public async Task<IActionResult> GetPendingResultApprovals()
+        {
+            var response = await _examResultService.GetPendingApprovals();
+            return Ok(response);
+        }
+
+        [HttpGet("ResultApprovals/{batchId}")]
+        public async Task<IActionResult> GetResultBatchReview(int batchId)
+        {
+            var response = await _examResultService.GetBatchReview(batchId);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ResultApprovals/{batchId}/Approve")]
+        public async Task<IActionResult> ApproveResultBatch(int batchId, [FromBody] ReviewExamResultsRequestDto request)
+        {
+            var adminUserId = GetUserId();
+            if (adminUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _examResultService.ApproveBatch(batchId, adminUserId.Value, request.Comment);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ResultApprovals/{batchId}/Reject")]
+        public async Task<IActionResult> RejectResultBatch(int batchId, [FromBody] ReviewExamResultsRequestDto request)
+        {
+            var adminUserId = GetUserId();
+            if (adminUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _examResultService.RejectBatch(batchId, adminUserId.Value, request.Comment);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        private int? GetUserId()
+        {
+            var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(claim, out var userId) ? userId : null;
         }
     }
 }

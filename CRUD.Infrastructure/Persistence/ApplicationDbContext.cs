@@ -19,6 +19,8 @@ namespace CRUD.Infrastructure.Persistence
         public DbSet<PromotionHistory> PromotionHistories { get; set; }
         public DbSet<ExamSchedule> ExamSchedules { get; set; }
         public DbSet<ExamSession> ExamSessions { get; set; }
+        public DbSet<ExamResultBatch> ExamResultBatches { get; set; }
+        public DbSet<ExamResultItem> ExamResultItems { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AcessLog> AcessLogs => Set<AcessLog>();
 
