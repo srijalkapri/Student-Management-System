@@ -142,3 +142,14 @@ Quick overview:
 ## License
 
 Private / educational project.
+
+
+
+
+to apply the migrations on the neon : 
+
+cd C:\Users\Srijal\source\repos\CRUD
+
+$env:ConnectionStrings__PostgreSQLConnection="Host=ep-long-salad-ahnve2z2-pooler.c-3.us-east-1.aws.neon.tech;Database=neondb;Username=neondb_owner;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
+
+dotnet ef database update --project CRUD.Infrastructure --startup-project CRUD.Web
