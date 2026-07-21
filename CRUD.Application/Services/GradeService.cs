@@ -20,6 +20,7 @@ namespace CRUD.Application.Services
             var grade = new Grade
             {
                 ClassName = gradeDto.ClassName,
+                Level = gradeDto.Level,
                 ClassTeacherId = gradeDto.ClassTeacherId
             };
 
@@ -36,6 +37,7 @@ namespace CRUD.Application.Services
             {
                 Id = id,
                 ClassName = gradeDto.ClassName,
+                Level = gradeDto.Level,
                 ClassTeacherId = gradeDto.ClassTeacherId
             };
 

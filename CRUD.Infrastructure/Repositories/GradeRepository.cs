@@ -46,10 +46,12 @@ namespace CRUD.Infrastructure.Repositories
         public async Task<List<GradeResponseDto>> GetAllGrades()
         {
             return await _context.Grades
+                .OrderBy(g => g.Level)
                 .Select(g => new GradeResponseDto
                 {
                     Id = g.Id,
                     ClassName = g.ClassName,
+                    Level = g.Level,
                     ClassTeacherId = g.ClassTeacherId,
                     ClassTeacher = g.ClassTeacher != null
                         ? new TeacherResponseDto
@@ -72,6 +74,7 @@ namespace CRUD.Infrastructure.Repositories
                 {
                     Id = g.Id,
                     ClassName = g.ClassName,
+                    Level = g.Level,
                     ClassTeacherId = g.ClassTeacherId,
                     ClassTeacher = g.ClassTeacher != null
                         ? new TeacherResponseDto
@@ -89,7 +92,7 @@ namespace CRUD.Infrastructure.Repositories
         public async Task<PagedResult<GradeResponseDto>> GetGradesPaged(PaginationParameters parameters)
         {
             var query = _context.Grades
-                .OrderBy(g => g.Id)
+                .OrderBy(g => g.Level)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(parameters.Search))
@@ -105,6 +108,7 @@ namespace CRUD.Infrastructure.Repositories
             {
                 Id = g.Id,
                 ClassName = g.ClassName,
+                Level = g.Level,
                 ClassTeacherId = g.ClassTeacherId,
                 ClassTeacher = g.ClassTeacher != null
                     ? new TeacherResponseDto

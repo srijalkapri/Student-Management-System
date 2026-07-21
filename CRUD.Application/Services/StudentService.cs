@@ -139,28 +139,10 @@ namespace CRUD.Application.Services
         {
             var response = new ServiceResponse<PromoteStudentsResponseDto>();
 
-            // Validate grades
-            var fromGrade = await _gradeRepository.GetGradeById(request.FromGradeId);
-            if (fromGrade == null)
+            var validationError = await ValidatePromotionGradesAsync(request.FromGradeId, request.ToGradeId);
+            if (validationError != null)
             {
-                response.Success = false;
-                response.Message = $"Source grade with ID {request.FromGradeId} not found.";
-                return response;
-            }
-
-            var toGrade = await _gradeRepository.GetGradeById(request.ToGradeId);
-            if (toGrade == null)
-            {
-                response.Success = false;
-                response.Message = $"Target grade with ID {request.ToGradeId} not found.";
-                return response;
-            }
-
-            if (request.FromGradeId == request.ToGradeId)
-            {
-                response.Success = false;
-                response.Message = "Source and target grades must be different.";
-                return response;
+                return validationError;
             }
 
             var result = await _studentRepository.PreviewPromotion(request.FromGradeId, request.ToGradeId, request.StudentIds);
@@ -173,34 +155,53 @@ namespace CRUD.Application.Services
         {
             var response = new ServiceResponse<PromoteStudentsResponseDto>();
 
-            // Validate grades
-            var fromGrade = await _gradeRepository.GetGradeById(request.FromGradeId);
-            if (fromGrade == null)
+            var validationError = await ValidatePromotionGradesAsync(request.FromGradeId, request.ToGradeId);
+            if (validationError != null)
             {
-                response.Success = false;
-                response.Message = $"Source grade with ID {request.FromGradeId} not found.";
-                return response;
-            }
-
-            var toGrade = await _gradeRepository.GetGradeById(request.ToGradeId);
-            if (toGrade == null)
-            {
-                response.Success = false;
-                response.Message = $"Target grade with ID {request.ToGradeId} not found.";
-                return response;
-            }
-
-            if (request.FromGradeId == request.ToGradeId)
-            {
-                response.Success = false;
-                response.Message = "Source and target grades must be different.";
-                return response;
+                return validationError;
             }
 
             var result = await _studentRepository.PromoteStudents(request.FromGradeId, request.ToGradeId, request.StudentIds);
             response.Data = result;
             response.Message = $"{result.PromotedCount} students promoted successfully.";
             return response;
+        }
+
+        private async Task<ServiceResponse<PromoteStudentsResponseDto>?> ValidatePromotionGradesAsync(int fromGradeId, int toGradeId)
+        {
+            var response = new ServiceResponse<PromoteStudentsResponseDto>();
+
+            var fromGrade = await _gradeRepository.GetGradeById(fromGradeId);
+            if (fromGrade == null)
+            {
+                response.Success = false;
+                response.Message = $"Source grade with ID {fromGradeId} not found.";
+                return response;
+            }
+
+            var toGrade = await _gradeRepository.GetGradeById(toGradeId);
+            if (toGrade == null)
+            {
+                response.Success = false;
+                response.Message = $"Target grade with ID {toGradeId} not found.";
+                return response;
+            }
+
+            if (fromGradeId == toGradeId)
+            {
+                response.Success = false;
+                response.Message = "Source and target grades must be different.";
+                return response;
+            }
+
+            if (toGrade.Level <= fromGrade.Level)
+            {
+                response.Success = false;
+                response.Message = "Target grade must be higher than source grade.";
+                return response;
+            }
+
+            return null;
         }
 
         public async Task<ServiceResponse<PagedResult<StudentDetailsDto>>> GetStudentsPaged(PaginationParameters parameters)

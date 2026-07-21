@@ -6,6 +6,7 @@ namespace CRUD.Domain.Models
     {
         public int Id { get; set; }
         public string ClassName { get; set; } = string.Empty;
+        public int Level { get; set; }
         public int? ClassTeacherId { get; set; }
 
         public virtual Teacher? ClassTeacher { get; set; }

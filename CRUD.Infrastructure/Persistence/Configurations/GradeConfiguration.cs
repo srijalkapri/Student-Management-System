@@ -15,6 +15,12 @@ namespace CRUD.Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(50);
 
+            builder.Property(g => g.Level)
+                .IsRequired();
+
+            builder.HasIndex(g => g.Level)
+                .IsUnique();
+
             builder.HasOne(g => g.ClassTeacher)
                 .WithMany()
                 .HasForeignKey(g => g.ClassTeacherId)

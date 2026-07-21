@@ -164,6 +164,7 @@ namespace CRUD.Infrastructure.Repositories
                 {
                     Id = g.Id,
                     ClassName = g.ClassName,
+                    Level = g.Level,
                     ClassTeacherId = g.ClassTeacherId,
                     ClassTeacher = g.ClassTeacher != null
                         ? new TeacherResponseDto
@@ -183,6 +184,7 @@ namespace CRUD.Infrastructure.Repositories
                 {
                     Id = gst.GradeSubject.GradeId,
                     ClassName = gst.GradeSubject.Grade.ClassName,
+                    Level = gst.GradeSubject.Grade.Level,
                     ClassTeacherId = gst.GradeSubject.Grade.ClassTeacherId,
                     ClassTeacher = gst.GradeSubject.Grade.ClassTeacher != null
                         ? new TeacherResponseDto

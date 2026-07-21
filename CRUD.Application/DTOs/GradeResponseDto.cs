@@ -4,6 +4,7 @@ namespace CRUD.Application.DTOs
     {
         public int Id { get; set; }
         public string ClassName { get; set; } = string.Empty;
+        public int Level { get; set; }
         public int? ClassTeacherId { get; set; }
         public TeacherResponseDto? ClassTeacher { get; set; }
     }
