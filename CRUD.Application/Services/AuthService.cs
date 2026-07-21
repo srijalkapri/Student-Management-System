@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using CRUD.Application.DTOs;
 using CRUD.Application.Interfaces;
@@ -13,6 +14,7 @@ namespace CRUD.Application.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly ITeacherRepository _teacherRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IGradeRepository _gradeRepository;
@@ -20,12 +22,14 @@ namespace CRUD.Application.Services
 
         public AuthService(
             IUserRepository userRepository,
+            IRefreshTokenRepository refreshTokenRepository,
             ITeacherRepository teacherRepository,
             IStudentRepository studentRepository,
             IGradeRepository gradeRepository,
             IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _refreshTokenRepository = refreshTokenRepository;
             _teacherRepository = teacherRepository;
             _studentRepository = studentRepository;
             _gradeRepository = gradeRepository;
@@ -51,25 +55,86 @@ namespace CRUD.Application.Services
                 return response;
             }
 
-            var token = await GenerateJwtToken(user);
-            var expiresAt = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiresInMinutes"] ?? "60"));
+            response.Data = await IssueTokens(user);
+            response.Message = "Login successful.";
 
-            var userDto = new UserDto
+            return response;
+        }
+
+        public async Task<ServiceResponse<LoginResponseDto>> Refresh(RefreshTokenRequestDto refreshRequest)
+        {
+            var response = new ServiceResponse<LoginResponseDto>();
+
+            if (string.IsNullOrWhiteSpace(refreshRequest.RefreshToken))
             {
-                Id = user.Id,
-                Username = user.Username,
-                FullName = user.FullName,
-                Role = user.Role
-            };
+                response.Success = false;
+                response.Message = "Refresh token is required";
+                return response;
+            }
+
+            var tokenHash = HashToken(refreshRequest.RefreshToken);
+            var storedToken = await _refreshTokenRepository.GetByTokenHash(tokenHash);
+
+            if (storedToken == null || !storedToken.IsActive)
+            {
+                response.Success = false;
+                response.Message = "Invalid or expired refresh token";
+                return response;
+            }
+
+            var user = await _userRepository.GetById(storedToken.UserId);
+            if (user == null || user.Status != UserStatus.Approved)
+            {
+                storedToken.RevokedAtUtc = DateTime.UtcNow;
+                await _refreshTokenRepository.Update(storedToken);
+
+                response.Success = false;
+                response.Message = "User is not allowed to refresh token";
+                return response;
+            }
+
+            var (newPlainToken, newEntity) = CreateRefreshToken(user.Id);
+
+            storedToken.RevokedAtUtc = DateTime.UtcNow;
+            storedToken.ReplacedByTokenHash = newEntity.TokenHash;
+            await _refreshTokenRepository.Update(storedToken);
+            await _refreshTokenRepository.Add(newEntity);
+
+            var accessToken = await GenerateJwtToken(user);
+            var accessExpiresAt = DateTime.UtcNow.AddMinutes(
+                double.Parse(_configuration["Jwt:ExpiresInMinutes"] ?? "60"));
 
             response.Data = new LoginResponseDto
             {
-                Token = token,
-                ExpiresAt = expiresAt,
-                User = userDto
+                Token = accessToken,
+                ExpiresAt = accessExpiresAt,
+                RefreshToken = newPlainToken,
+                RefreshTokenExpiresAt = newEntity.ExpiresAtUtc,
+                User = MapUser(user)
             };
-            response.Message = "Login successful.";
+            response.Message = "Token refreshed.";
 
+            return response;
+        }
+
+        public async Task<ServiceResponse<string>> Logout(RefreshTokenRequestDto refreshRequest)
+        {
+            var response = new ServiceResponse<string>();
+
+            if (!string.IsNullOrWhiteSpace(refreshRequest.RefreshToken))
+            {
+                var tokenHash = HashToken(refreshRequest.RefreshToken);
+                var storedToken = await _refreshTokenRepository.GetByTokenHash(tokenHash);
+
+                if (storedToken != null && storedToken.IsActive)
+                {
+                    storedToken.RevokedAtUtc = DateTime.UtcNow;
+                    await _refreshTokenRepository.Update(storedToken);
+                }
+            }
+
+            response.Data = "Logged out";
+            response.Message = "Logout successful. Please clear tokens on the client.";
             return response;
         }
 
@@ -85,13 +150,7 @@ namespace CRUD.Application.Services
                 return response;
             }
 
-            response.Data = new UserDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                FullName = user.FullName,
-                Role = user.Role
-            };
+            response.Data = MapUser(user);
 
             return response;
         }
@@ -241,6 +300,8 @@ namespace CRUD.Application.Services
                 return response;
             }
 
+            await _refreshTokenRepository.RevokeAllActiveForUser(userId);
+
             // Soft-delete frees the username (unique index only applies to active users).
             user.Status = UserStatus.Rejected;
             user.IsDeleted = true;
@@ -358,6 +419,58 @@ namespace CRUD.Application.Services
             }
 
             return response;
+        }
+
+        private async Task<LoginResponseDto> IssueTokens(User user)
+        {
+            var accessToken = await GenerateJwtToken(user);
+            var accessExpiresAt = DateTime.UtcNow.AddMinutes(
+                double.Parse(_configuration["Jwt:ExpiresInMinutes"] ?? "60"));
+
+            var (refreshPlain, refreshEntity) = CreateRefreshToken(user.Id);
+            await _refreshTokenRepository.Add(refreshEntity);
+
+            return new LoginResponseDto
+            {
+                Token = accessToken,
+                ExpiresAt = accessExpiresAt,
+                RefreshToken = refreshPlain,
+                RefreshTokenExpiresAt = refreshEntity.ExpiresAtUtc,
+                User = MapUser(user)
+            };
+        }
+
+        private (string PlainToken, RefreshToken Entity) CreateRefreshToken(int userId)
+        {
+            var plainToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            var days = int.Parse(_configuration["Jwt:RefreshTokenExpiresInDays"] ?? "7");
+
+            var entity = new RefreshToken
+            {
+                UserId = userId,
+                TokenHash = HashToken(plainToken),
+                CreatedAtUtc = DateTime.UtcNow,
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(days)
+            };
+
+            return (plainToken, entity);
+        }
+
+        private static string HashToken(string token)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToHexString(bytes);
+        }
+
+        private static UserDto MapUser(User user)
+        {
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                FullName = user.FullName,
+                Role = user.Role
+            };
         }
 
         private async Task<string> GenerateJwtToken(User user)

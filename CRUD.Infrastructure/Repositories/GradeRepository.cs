@@ -60,7 +60,7 @@ namespace CRUD.Infrastructure.Repositories
                             PhoneNo = g.ClassTeacher.PhoneNo
                         }
                         : null
-                })
+                })  
                 .ToListAsync();
         }
 

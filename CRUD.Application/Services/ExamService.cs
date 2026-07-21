@@ -308,7 +308,7 @@ namespace CRUD.Application.Services
                 response.Message = "Exam schedule not found.";
                 return response;
             }
-
+                
             if (schedule.Status == ExamScheduleStatus.Published)
             {
                 response.Success = false;

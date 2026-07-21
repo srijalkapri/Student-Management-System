@@ -30,6 +30,18 @@ namespace CRUD.Controllers
             return Ok(response);
         }
 
+        [HttpPost("Refresh")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto refreshRequest)
+        {
+            var response = await _authService.Refresh(refreshRequest);
+            if (!response.Success)
+            {
+                return Unauthorized(response);
+            }
+            return Ok(response);
+        }
+
         [HttpPost("Register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequest)
@@ -102,9 +114,10 @@ namespace CRUD.Controllers
 
         [HttpPost("Logout")]
         [AllowAnonymous]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto? refreshRequest)
         {
-            return Ok(new ServiceResponse<string> { Message = "Logout successful. Please clear your token on the client." });
+            var response = await _authService.Logout(refreshRequest ?? new RefreshTokenRequestDto());
+            return Ok(response);
         }
     }
 }
