@@ -263,52 +263,43 @@ namespace CRUD.Infrastructure.Repositories
             var skippedStudents = new List<SkippedStudentDto>();
             var promotedStudentIds = new List<int>();
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var studentsQuery = _context.Students.Where(s => s.GradeId == fromGradeId);
+            if (studentIds != null && studentIds.Any())
             {
-                var studentsQuery = _context.Students.Where(s => s.GradeId == fromGradeId);
-                if (studentIds != null && studentIds.Any())
+                studentsQuery = studentsQuery.Where(s => studentIds.Contains(s.Id));
+            }
+
+            var students = await studentsQuery.ToListAsync();
+            foreach (var student in students)
+            {
+                if (student.GradeId == toGradeId)
                 {
-                    studentsQuery = studentsQuery.Where(s => studentIds.Contains(s.Id));
-                }
-
-                var students = await studentsQuery.ToListAsync();
-                foreach (var student in students)
-                {
-                    if (student.GradeId == toGradeId)
-                    {
-                        skippedStudents.Add(new SkippedStudentDto
-                        {
-                            StudentId = student.Id,
-                            Reason = "Already in target grade"
-                        });
-                        continue;
-                    }
-
-                    student.GradeId = toGradeId;
-                    promotedStudentIds.Add(student.Id);
-
-                    _context.PromotionHistories.Add(new PromotionHistory
+                    skippedStudents.Add(new SkippedStudentDto
                     {
                         StudentId = student.Id,
-                        FromGradeId = fromGradeId,
-                        ToGradeId = toGradeId,
-                        PromotedAt = DateTime.UtcNow
+                        Reason = "Already in target grade"
                     });
+                    continue;
                 }
 
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                student.GradeId = toGradeId;
+                promotedStudentIds.Add(student.Id);
 
-                response.PromotedCount = promotedStudentIds.Count;
-                response.SkippedCount = skippedStudents.Count;
-                response.SkippedStudents = skippedStudents;
+                _context.PromotionHistories.Add(new PromotionHistory
+                {
+                    StudentId = student.Id,
+                    FromGradeId = fromGradeId,
+                    ToGradeId = toGradeId,
+                    PromotedAt = DateTime.UtcNow
+                });
             }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+
+           
+            await _context.SaveChangesAsync();
+
+            response.PromotedCount = promotedStudentIds.Count;
+            response.SkippedCount = skippedStudents.Count;
+            response.SkippedStudents = skippedStudents;
 
             return response;
         }
