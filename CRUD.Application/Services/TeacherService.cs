@@ -2,6 +2,7 @@ using CRUD.Application.DTOs;
 using CRUD.Application.Interfaces;
 using CRUD.Domain.Models;
 using CRUD.Application.Responses;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace CRUD.Application.Services
 {
@@ -152,3 +153,6 @@ namespace CRUD.Application.Services
         }
     }
 }
+
+
+

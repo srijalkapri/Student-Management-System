@@ -11,7 +11,7 @@ namespace CRUD.Controllers
     public class GradeSubjectController : ControllerBase
     {
         private readonly IGradeSubjectService _gradeSubjectService;
-
+            
         public GradeSubjectController(IGradeSubjectService gradeSubjectService)
         {
             _gradeSubjectService = gradeSubjectService;

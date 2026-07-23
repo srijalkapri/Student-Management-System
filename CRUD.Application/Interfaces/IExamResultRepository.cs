@@ -15,6 +15,8 @@ namespace CRUD.Application.Interfaces
         Task UpdateBatch(ExamResultBatch batch);
         Task<List<AdminPendingExamResultDto>> GetPendingBatches();
         Task<AdminExamResultReviewDto?> GetBatchReviewById(int batchId);
+        Task<AdminScheduleMarksDto?> GetApprovedMarksBySchedule(int examScheduleId);
         Task<List<StudentExamResultScheduleDto>> GetStudentApprovedResults(int studentId, int? examScheduleId);
     }
 }
+

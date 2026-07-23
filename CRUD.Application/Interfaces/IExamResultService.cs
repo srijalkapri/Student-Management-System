@@ -13,6 +13,9 @@ namespace CRUD.Application.Interfaces
         Task<ServiceResponse<AdminExamResultReviewDto>> GetBatchReview(int batchId);
         Task<ServiceResponse<string>> ApproveBatch(int batchId, int adminUserId, string? comment);
         Task<ServiceResponse<string>> RejectBatch(int batchId, int adminUserId, string? comment);
+        Task<ServiceResponse<AdminScheduleMarksDto>> GetMarksBySchedule(int examScheduleId);
+        Task<ServiceResponse<AdminStudentMarksRecordDto>> GetMarksByStudent(int studentId, int? examScheduleId);
         Task<ServiceResponse<List<StudentExamResultScheduleDto>>> GetStudentResults(int userId, int? examScheduleId);
     }
 }
+

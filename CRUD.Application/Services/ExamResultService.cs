@@ -200,6 +200,44 @@ namespace CRUD.Application.Services
             return response;
         }
 
+        public async Task<ServiceResponse<AdminScheduleMarksDto>> GetMarksBySchedule(int examScheduleId)
+        {
+            var response = new ServiceResponse<AdminScheduleMarksDto>();
+            var marks = await _examResultRepository.GetApprovedMarksBySchedule(examScheduleId);
+            if (marks == null)
+            {
+                response.Success = false;
+                response.Message = "Exam schedule not found.";
+                return response;
+            }
+
+            response.Data = marks;
+            response.Message = "Approved exam results for schedule retrieved successfully.";
+            return response;
+        }
+
+        public async Task<ServiceResponse<AdminStudentMarksRecordDto>> GetMarksByStudent(int studentId, int? examScheduleId)
+        {
+            var response = new ServiceResponse<AdminStudentMarksRecordDto>();
+            var student = await _studentRepository.GetStudentById(studentId);
+            if (student == null)
+            {
+                response.Success = false;
+                response.Message = "Student not found.";
+                return response;
+            }
+
+            response.Data = new AdminStudentMarksRecordDto
+            {
+                StudentId = student.Id,
+                StudentName = student.Name,
+                GradeName = student.GradeName,
+                Results = await _examResultRepository.GetStudentApprovedResults(student.Id, examScheduleId)
+            };
+            response.Message = "Approved exam results for student retrieved successfully.";
+            return response;
+        }
+
         public async Task<ServiceResponse<List<StudentExamResultScheduleDto>>> GetStudentResults(int userId, int? examScheduleId)
         {
             var response = new ServiceResponse<List<StudentExamResultScheduleDto>>();

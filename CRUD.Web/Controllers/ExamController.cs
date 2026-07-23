@@ -1,7 +1,6 @@
+using System.Security.Claims;
 using CRUD.Application.DTOs;
 using CRUD.Application.Interfaces;
-using CRUD.Application.Responses;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -195,6 +194,30 @@ namespace CRUD.Controllers
             if (!response.Success)
             {
                 return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("Results/BySchedule/{examScheduleId}")]
+        public async Task<IActionResult> GetResultsBySchedule(int examScheduleId)
+        {
+            var response = await _examResultService.GetMarksBySchedule(examScheduleId);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("Results/ByStudent/{studentId}")]
+        public async Task<IActionResult> GetResultsByStudent(int studentId, [FromQuery] int? examScheduleId = null)
+        {
+            var response = await _examResultService.GetMarksByStudent(studentId, examScheduleId);
+            if (!response.Success)
+            {
+                return NotFound(response);
             }
 
             return Ok(response);

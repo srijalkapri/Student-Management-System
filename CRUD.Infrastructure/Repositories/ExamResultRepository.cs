@@ -200,6 +200,83 @@ namespace CRUD.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<AdminScheduleMarksDto?> GetApprovedMarksBySchedule(int examScheduleId)
+        {
+            var schedule = await _context.ExamSchedules
+                .Where(s => s.Id == examScheduleId)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.Title,
+                    s.AcademicYear,
+                    GradeName = s.Grade.ClassName
+                })
+                .FirstOrDefaultAsync();
+
+            if (schedule == null)
+            {
+                return null;
+            }
+
+            var rows = await _context.ExamResultItems
+                .Where(i =>
+                    i.ExamResultBatch.ExamSession.ExamScheduleId == examScheduleId &&
+                    i.ExamResultBatch.Status == ExamResultStatus.Approved)
+                .Select(i => new
+                {
+                    i.StudentId,
+                    StudentName = i.Student.Name,
+                    SubjectName = i.ExamResultBatch.ExamSession.GradeSubject.Subject.Name,
+                    i.MarksObtained,
+                    i.TotalMarks,
+                    i.IsAbsent,
+                    i.Remarks
+                })
+                .ToListAsync();
+
+            var students = rows
+                .GroupBy(x => new { x.StudentId, x.StudentName })
+                .Select(g =>
+                {
+                    var subjects = g
+                        .OrderBy(x => x.SubjectName)
+                        .Select(x => new StudentExamResultSubjectDto
+                        {
+                            SubjectName = x.SubjectName,
+                            MarksObtained = x.MarksObtained,
+                            TotalMarks = x.TotalMarks,
+                            IsAbsent = x.IsAbsent,
+                            Remarks = x.Remarks
+                        })
+                        .ToList();
+
+                    var totalMarks = subjects.Sum(s => s.TotalMarks);
+                    var totalObtained = subjects.Sum(s => s.MarksObtained ?? 0m);
+                    var percentage = totalMarks <= 0 ? 0 : decimal.Round((totalObtained / totalMarks) * 100m, 2);
+
+                    return new AdminStudentMarksRowDto
+                    {
+                        StudentId = g.Key.StudentId,
+                        StudentName = g.Key.StudentName,
+                        Subjects = subjects,
+                        TotalMarks = totalMarks,
+                        TotalObtained = totalObtained,
+                        Percentage = percentage
+                    };
+                })
+                .OrderBy(x => x.StudentName)
+                .ToList();
+
+            return new AdminScheduleMarksDto
+            {
+                ExamScheduleId = schedule.Id,
+                ExamTitle = schedule.Title,
+                AcademicYear = schedule.AcademicYear,
+                GradeName = schedule.GradeName,
+                Students = students
+            };
+        }
+
         public async Task<List<StudentExamResultScheduleDto>> GetStudentApprovedResults(int studentId, int? examScheduleId)
         {
             var query = _context.ExamResultItems
