@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/FACE_DETECTION_RECOGNITION.md
+/NEPALI_CALENDAR_BUILD_READY.md
+/EMPLOYEE_ATTENDANCE_SYSTEM_ROADMAP.md
