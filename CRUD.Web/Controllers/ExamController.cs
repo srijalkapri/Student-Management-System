@@ -13,11 +13,16 @@ namespace CRUD.Controllers
     {
         private readonly IExamService _examService;
         private readonly IExamResultService _examResultService;
+        private readonly IReExamService _reExamService;
 
-        public ExamController(IExamService examService, IExamResultService examResultService)
+        public ExamController(
+            IExamService examService,
+            IExamResultService examResultService,
+            IReExamService reExamService)
         {
             _examService = examService;
             _examResultService = examResultService;
+            _reExamService = reExamService;
         }
 
         [HttpGet("GetAllSchedules")]
@@ -218,6 +223,104 @@ namespace CRUD.Controllers
             if (!response.Success)
             {
                 return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("ReExams/Pending")]
+        public async Task<IActionResult> GetPendingReExamRequests()
+        {
+            var response = await _reExamService.GetPendingRequestApprovals();
+            return Ok(response);
+        }
+
+        [HttpGet("ReExams/Marks/Pending")]
+        public async Task<IActionResult> GetPendingReExamMarks()
+        {
+            var response = await _reExamService.GetPendingMarksApprovals();
+            return Ok(response);
+        }
+
+        [HttpGet("ReExams/{id}")]
+        public async Task<IActionResult> GetReExamById(int id)
+        {
+            var response = await _reExamService.GetById(id);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ReExams/{id}/Approve")]
+        public async Task<IActionResult> ApproveReExamRequest(int id, [FromBody] ReviewReExamRequestDto request)
+        {
+            var adminUserId = GetUserId();
+            if (adminUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.ApproveRequest(id, adminUserId.Value, request.Comment);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ReExams/{id}/Reject")]
+        public async Task<IActionResult> RejectReExamRequest(int id, [FromBody] ReviewReExamRequestDto request)
+        {
+            var adminUserId = GetUserId();
+            if (adminUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.RejectRequest(id, adminUserId.Value, request.Comment);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ReExams/{id}/ApproveMarks")]
+        public async Task<IActionResult> ApproveReExamMarks(int id, [FromBody] ReviewReExamRequestDto request)
+        {
+            var adminUserId = GetUserId();
+            if (adminUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.ApproveMarks(id, adminUserId.Value, request.Comment);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ReExams/{id}/RejectMarks")]
+        public async Task<IActionResult> RejectReExamMarks(int id, [FromBody] ReviewReExamRequestDto request)
+        {
+            var adminUserId = GetUserId();
+            if (adminUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.RejectMarks(id, adminUserId.Value, request.Comment);
+            if (!response.Success)
+            {
+                return BadRequest(response);
             }
 
             return Ok(response);

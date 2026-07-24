@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IGradeSubjectTeacherRepository, GradeSubjectTeacherRepository>();
         services.AddScoped<IExamRepository, ExamRepository>();
         services.AddScoped<IExamResultRepository, ExamResultRepository>();
+        services.AddScoped<IReExamRepository, ReExamRepository>();
         services.AddScoped<IAcessLogRepository, AccessLogRepository>();
 
         return services;

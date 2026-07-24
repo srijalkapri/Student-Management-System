@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CRUD.Application.DTOs;
 using CRUD.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,16 @@ namespace CRUD.Controllers
     {
         private readonly IStudentPortalService _studentPortalService;
         private readonly IExamResultService _examResultService;
+        private readonly IReExamService _reExamService;
 
-        public StudentPortalController(IStudentPortalService studentPortalService, IExamResultService examResultService)
+        public StudentPortalController(
+            IStudentPortalService studentPortalService,
+            IExamResultService examResultService,
+            IReExamService reExamService)
         {
             _studentPortalService = studentPortalService;
             _examResultService = examResultService;
+            _reExamService = reExamService;
         }
 
         [HttpGet("Overview")]
@@ -119,6 +125,42 @@ namespace CRUD.Controllers
             }
 
             var response = await _examResultService.GetStudentResults(userId.Value, examScheduleId);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ReExams/Apply")]
+        public async Task<IActionResult> ApplyForReExam([FromBody] ApplyReExamRequestDto request)
+        {
+            var userId = GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.Apply(userId.Value, request);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("ReExams")]
+        public async Task<IActionResult> GetMyReExams()
+        {
+            var userId = GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.GetMyRequests(userId.Value);
             if (!response.Success)
             {
                 return BadRequest(response);

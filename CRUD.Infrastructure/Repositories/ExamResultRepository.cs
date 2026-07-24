@@ -224,8 +224,10 @@ namespace CRUD.Infrastructure.Repositories
                     i.ExamResultBatch.Status == ExamResultStatus.Approved)
                 .Select(i => new
                 {
+                    i.Id,
                     i.StudentId,
                     StudentName = i.Student.Name,
+                    ExamSessionId = i.ExamResultBatch.ExamSessionId,
                     SubjectName = i.ExamResultBatch.ExamSession.GradeSubject.Subject.Name,
                     i.MarksObtained,
                     i.TotalMarks,
@@ -234,19 +236,54 @@ namespace CRUD.Infrastructure.Repositories
                 })
                 .ToListAsync();
 
+            var studentIds = rows.Select(r => r.StudentId).Distinct().ToList();
+            var sessionIds = rows.Select(r => r.ExamSessionId).Distinct().ToList();
+
+            var reExams = await _context.ReExamRequests
+                .Where(r =>
+                    r.Status == ReExamRequestStatus.MarksApproved &&
+                    studentIds.Contains(r.StudentId) &&
+                    sessionIds.Contains(r.ExamSessionId))
+                .ToListAsync();
+
+            var reExamLookup = reExams
+                .GroupBy(r => (r.StudentId, r.ExamSessionId))
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.AttemptNumber).First());
+
             var students = rows
                 .GroupBy(x => new { x.StudentId, x.StudentName })
                 .Select(g =>
                 {
                     var subjects = g
                         .OrderBy(x => x.SubjectName)
-                        .Select(x => new StudentExamResultSubjectDto
+                        .Select(x =>
                         {
-                            SubjectName = x.SubjectName,
-                            MarksObtained = x.MarksObtained,
-                            TotalMarks = x.TotalMarks,
-                            IsAbsent = x.IsAbsent,
-                            Remarks = x.Remarks
+                            var dto = new StudentExamResultSubjectDto
+                            {
+                                ExamSessionId = x.ExamSessionId,
+                                ExamResultItemId = x.Id,
+                                SubjectName = x.SubjectName,
+                                MarksObtained = x.MarksObtained,
+                                TotalMarks = x.TotalMarks,
+                                IsAbsent = x.IsAbsent,
+                                Remarks = x.Remarks
+                            };
+
+                            if (reExamLookup.TryGetValue((x.StudentId, x.ExamSessionId), out var reExam))
+                            {
+                                dto.OriginalMarksObtained = x.MarksObtained;
+                                dto.OriginalTotalMarks = x.TotalMarks;
+                                dto.OriginalIsAbsent = x.IsAbsent;
+                                dto.MarksObtained = reExam.MarksObtained;
+                                dto.TotalMarks = reExam.TotalMarks ?? x.TotalMarks;
+                                dto.IsAbsent = reExam.IsAbsent;
+                                dto.Remarks = reExam.MarksRemarks;
+                                dto.IsReExamResult = true;
+                                dto.ReExamStatus = reExam.Status.ToString();
+                                dto.ReExamRequestId = reExam.Id;
+                            }
+
+                            return dto;
                         })
                         .ToList();
 
@@ -292,6 +329,8 @@ namespace CRUD.Infrastructure.Repositories
             var rows = await query
                 .Select(i => new
                 {
+                    i.Id,
+                    ExamSessionId = i.ExamResultBatch.ExamSessionId,
                     i.ExamResultBatch.ExamSession.ExamScheduleId,
                     i.ExamResultBatch.ExamSession.ExamSchedule.Title,
                     i.ExamResultBatch.ExamSession.ExamSchedule.AcademicYear,
@@ -303,17 +342,76 @@ namespace CRUD.Infrastructure.Repositories
                 })
                 .ToListAsync();
 
+            var latestRequests = await _context.ReExamRequests
+                .Where(r => r.StudentId == studentId)
+                .ToListAsync();
+
+            var latestBySession = latestRequests
+                .GroupBy(r => r.ExamSessionId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.Id).First());
+
+            var openStatuses = new[]
+            {
+                ReExamRequestStatus.Requested,
+                ReExamRequestStatus.Approved,
+                ReExamRequestStatus.MarksSubmitted,
+                ReExamRequestStatus.MarksRejected
+            };
+
             return rows
                 .GroupBy(x => new { x.ExamScheduleId, x.Title, x.AcademicYear })
                 .Select(g =>
                 {
-                    var subjects = g.Select(x => new StudentExamResultSubjectDto
+                    var subjects = g.Select(x =>
                     {
-                        SubjectName = x.SubjectName,
-                        MarksObtained = x.MarksObtained,
-                        TotalMarks = x.TotalMarks,
-                        IsAbsent = x.IsAbsent,
-                        Remarks = x.Remarks
+                        var dto = new StudentExamResultSubjectDto
+                        {
+                            ExamSessionId = x.ExamSessionId,
+                            ExamResultItemId = x.Id,
+                            SubjectName = x.SubjectName,
+                            MarksObtained = x.MarksObtained,
+                            TotalMarks = x.TotalMarks,
+                            IsAbsent = x.IsAbsent,
+                            Remarks = x.Remarks
+                        };
+
+                        latestBySession.TryGetValue(x.ExamSessionId, out var latest);
+                        if (latest != null)
+                        {
+                            dto.ReExamStatus = latest.Status.ToString();
+                            dto.ReExamRequestId = latest.Id;
+
+                            if (latest.Status == ReExamRequestStatus.MarksApproved)
+                            {
+                                dto.OriginalMarksObtained = x.MarksObtained;
+                                dto.OriginalTotalMarks = x.TotalMarks;
+                                dto.OriginalIsAbsent = x.IsAbsent;
+                                dto.MarksObtained = latest.MarksObtained;
+                                dto.TotalMarks = latest.TotalMarks ?? x.TotalMarks;
+                                dto.IsAbsent = latest.IsAbsent;
+                                dto.Remarks = latest.MarksRemarks;
+                                dto.IsReExamResult = true;
+                            }
+                        }
+
+                        var hasOpen = latest != null && openStatuses.Contains(latest.Status);
+                        var completedCount = latestRequests.Count(r =>
+                            r.ExamSessionId == x.ExamSessionId &&
+                            r.Status == ReExamRequestStatus.MarksApproved);
+
+                        var eligible = x.IsAbsent ||
+                            (x.TotalMarks > 0 &&
+                             x.MarksObtained.HasValue &&
+                             (x.MarksObtained.Value / x.TotalMarks) * 100m < 40m);
+
+                        // Eligibility is based on original attempt, not re-exam result.
+                        if (latest?.Status == ReExamRequestStatus.MarksApproved)
+                        {
+                            eligible = false;
+                        }
+
+                        dto.CanApplyReExam = eligible && !hasOpen && completedCount < 1;
+                        return dto;
                     }).ToList();
 
                     var totalMarks = subjects.Sum(s => s.TotalMarks);

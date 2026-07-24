@@ -13,11 +13,16 @@ namespace CRUD.Controllers
     {
         private readonly ITeacherPortalService _teacherPortalService;
         private readonly IExamResultService _examResultService;
+        private readonly IReExamService _reExamService;
 
-        public TeacherPortalController(ITeacherPortalService teacherPortalService, IExamResultService examResultService)
+        public TeacherPortalController(
+            ITeacherPortalService teacherPortalService,
+            IExamResultService examResultService,
+            IReExamService reExamService)
         {
             _teacherPortalService = teacherPortalService;
             _examResultService = examResultService;
+            _reExamService = reExamService;
         }
 
         [HttpGet("Overview")]
@@ -174,6 +179,54 @@ namespace CRUD.Controllers
             }
 
             var response = await _examResultService.SubmitForApproval(userId.Value, request);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("ReExams")]
+        public async Task<IActionResult> GetMyReExams()
+        {
+            var userId = GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.GetTeacherReExams(userId.Value);
+            if (!response.Success)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("ReExams/{id}")]
+        public async Task<IActionResult> GetReExamById(int id)
+        {
+            var response = await _reExamService.GetById(id);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("ReExams/{id}/Submit")]
+        public async Task<IActionResult> SubmitReExamMarks(int id, [FromBody] TeacherSubmitReExamMarksDto request)
+        {
+            var userId = GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var response = await _reExamService.SubmitMarks(userId.Value, id, request);
             if (!response.Success)
             {
                 return BadRequest(response);
