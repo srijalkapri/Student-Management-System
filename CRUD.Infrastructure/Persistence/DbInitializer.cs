@@ -15,6 +15,8 @@ namespace CRUD.Infrastructure.Persistence
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
+            await context.Database.MigrateAsync();
+
             // Check if any SuperAdmin exists
             var superAdmin = await context.Users.FirstOrDefaultAsync(u => u.Role == "SuperAdmin");
             if (superAdmin == null)
